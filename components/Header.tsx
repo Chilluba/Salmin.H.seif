@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { NavLink as RouterNavLink } from 'react-router-dom';
+import { NavLink as RouterNavLink, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, Code } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import { NAV_LINKS } from '../constants';
 
 export const Header: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const location = useLocation();
+  const isHomePage = location.pathname === '/';
 
   useEffect(() => {
     const handleScroll = () => {
@@ -16,9 +18,7 @@ export const Header: React.FC = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const activeLinkStyle = {
-    color: '#E50914',
-  };
+  const headerClass = `fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled || !isHomePage ? 'bg-[#0B0B0C]/80 backdrop-blur-lg border-b border-[#27272A]' : 'bg-transparent'}`;
 
   const menuVariants = {
     hidden: { opacity: 0, y: -20 },
@@ -31,21 +31,19 @@ export const Header: React.FC = () => {
   };
 
   return (
-    <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-[#0B0B0C]/80 backdrop-blur-lg border-b border-[#27272A]' : 'bg-transparent'}`}>
+    <header className={headerClass}>
       <nav className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20">
-          <RouterNavLink to="/" className="flex items-center space-x-2 text-2xl font-display tracking-wider text-[#F5F7FA] hover:text-[#E50914] transition-colors">
-            <Code size={28} className="text-[#E50914]" />
+        <div className="flex items-center justify-between h-24">
+          <RouterNavLink to="/" className="text-3xl font-display tracking-wider text-[#F5F7FA] hover:text-[#e63946] transition-colors">
             <span>SALMIN H. SEIF</span>
           </RouterNavLink>
 
-          <div className="hidden md:flex items-center space-x-8">
+          <div className="hidden md:flex items-center space-x-10">
             {NAV_LINKS.map((link) => (
               <RouterNavLink
                 key={link.name}
                 to={link.path}
-                className="font-accent uppercase tracking-widest text-[#A1A1AA] hover:text-[#F5F7FA] transition-colors"
-                style={({ isActive }) => (isActive ? activeLinkStyle : {})}
+                className={({ isActive }) => `nav-bubble ${isActive ? 'active' : ''}`}
               >
                 {link.name}
               </RouterNavLink>
@@ -66,10 +64,10 @@ export const Header: React.FC = () => {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-[#121317] border-t border-[#27272A]"
+            className="md:hidden bg-[#121317]/95 border-t border-[#27272A]"
           >
             <motion.div 
-                className="flex flex-col items-center space-y-6 py-8"
+                className="flex flex-col items-center space-y-8 py-8"
                 variants={menuVariants}
                 initial="hidden"
                 animate="visible"
@@ -78,12 +76,12 @@ export const Header: React.FC = () => {
               {NAV_LINKS.map((link) => (
                 <motion.div key={link.name} variants={menuItemVariants}>
                     <RouterNavLink
-                    to={link.path}
-                    className="font-accent text-2xl uppercase tracking-widest text-[#A1A1AA] hover:text-[#F5F7FA] transition-colors"
-                    onClick={() => setIsOpen(false)}
-                    style={({ isActive }) => (isActive ? activeLinkStyle : {})}
+                      to={link.path}
+                      className="font-accent text-2xl uppercase tracking-widest text-[#A1A1AA] hover:text-[#F5F7FA] transition-colors"
+                      onClick={() => setIsOpen(false)}
+                      style={({ isActive }) => (isActive ? { color: '#e63946' } : {})}
                     >
-                    {link.name}
+                      {link.name}
                     </RouterNavLink>
                 </motion.div>
               ))}
