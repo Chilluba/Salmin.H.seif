@@ -1,8 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 // FIX: Imported `Variants` type from framer-motion to resolve type errors.
 import { motion, Variants } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Settings } from 'lucide-react';
+import { DynamicBackground } from '../components/DynamicBackground';
+import { AdminDashboard } from '../components/AdminDashboard';
+import { WallpaperStatus } from '../components/WallpaperStatus';
 
 // FIX: Explicitly typed with `Variants` to ensure type compatibility with framer-motion.
 const containerVariants: Variants = {
@@ -23,15 +26,21 @@ const itemVariants: Variants = {
 };
 
 export const Home: React.FC = () => {
+  const [isAdminOpen, setIsAdminOpen] = useState(false);
+
   return (
     <div className="relative w-screen h-screen -ml-4 sm:-ml-6 lg:-ml-8 -mt-24 md:-mt-32 flex items-center justify-center overflow-hidden">
-        {/* Background Image */}
-        <div 
-            className="absolute inset-0 z-0 bg-cover bg-center"
-            style={{ backgroundImage: "url('https://i.imgur.com/Y5tM2nb.jpg')" }}
+        {/* Dynamic Background */}
+        <DynamicBackground />
+        
+        {/* Admin Access Button */}
+        <button
+          onClick={() => setIsAdminOpen(true)}
+          className="absolute top-4 right-4 z-20 p-2 bg-black/50 text-white rounded-full hover:bg-black/70 transition-colors backdrop-blur-sm"
+          title="Admin Dashboard"
         >
-            <div className="absolute inset-0 bg-black/40"></div> {/* Overlay */}
-        </div>
+          <Settings size={20} />
+        </button>
 
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 grid grid-cols-1 md:grid-cols-5 gap-8 items-center">
             {/* Left Side: Text Content */}
@@ -85,6 +94,15 @@ export const Home: React.FC = () => {
                 <img src="https://i.imgur.com/gBwva9K.png" alt="Salmin Habibu Seif as a comic character" className="max-h-[90vh] object-contain drop-shadow-[0_10px_15px_rgba(0,0,0,0.7)]" />
             </motion.div>
         </div>
+        
+        {/* Admin Dashboard */}
+        <AdminDashboard 
+          isOpen={isAdminOpen} 
+          onClose={() => setIsAdminOpen(false)} 
+        />
+        
+        {/* Wallpaper Status Indicator */}
+        <WallpaperStatus />
     </div>
   );
 };
