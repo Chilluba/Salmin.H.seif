@@ -9,6 +9,7 @@ import { About } from './pages/About';
 import { Portfolio } from './pages/Portfolio';
 import { Writings } from './pages/Writings';
 import { Contact } from './pages/Contact';
+import { AdminLogin } from './pages/AdminLogin';
 
 const AnimatedRoutes: React.FC = () => {
     const location = useLocation();
@@ -21,6 +22,7 @@ const AnimatedRoutes: React.FC = () => {
                 <Route path="/portfolio" element={<Portfolio />} />
                 <Route path="/writings" element={<Writings />} />
                 <Route path="/contact" element={<Contact />} />
+                <Route path="/login" element={<AdminLogin />} />
             </Routes>
         </AnimatePresence>
     );

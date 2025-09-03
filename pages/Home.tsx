@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 // FIX: Imported `Variants` type from framer-motion to resolve type errors.
 import { motion, Variants } from 'framer-motion';
 import { Link } from 'react-router-dom';
@@ -28,8 +28,21 @@ const itemVariants: Variants = {
 export const Home: React.FC = () => {
   const [isAdminOpen, setIsAdminOpen] = useState(false);
 
+  useEffect(() => {
+    // Listen for admin dashboard open event from /login route
+    const handleOpenAdmin = () => {
+      setIsAdminOpen(true);
+    };
+
+    window.addEventListener('open-admin-dashboard', handleOpenAdmin);
+    
+    return () => {
+      window.removeEventListener('open-admin-dashboard', handleOpenAdmin);
+    };
+  }, []);
+
   return (
-    <div className="relative w-screen h-screen -ml-4 sm:-ml-6 lg:-ml-8 -mt-24 md:-mt-32 flex items-center justify-center overflow-hidden">
+    <div className="relative w-screen h-screen -ml-4 sm:-ml-6 lg:-ml-8 -mt-8 md:-mt-16 flex items-center justify-center overflow-hidden">
         {/* Dynamic Background */}
         <DynamicBackground />
         

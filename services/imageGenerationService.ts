@@ -26,14 +26,16 @@ export class ImageGenerationService {
   private initializeAPI(): void {
     try {
       const apiKey = process.env.GEMINI_API_KEY || process.env.API_KEY;
+      console.log('🔑 Image Generation Service - API Key:', apiKey ? `${apiKey.substring(0, 10)}...` : 'undefined');
+      
       if (apiKey && apiKey !== 'undefined' && apiKey.trim() !== '') {
         this.genAI = new GoogleGenerativeAI(apiKey);
-        console.log('Gemini API initialized successfully');
+        console.log('✅ Image Generation Service - Gemini API initialized');
       } else {
-        console.warn('Gemini API key not found or invalid. Using fallback images.');
+        console.warn('⚠️ Image Generation Service - API key not found. Using fallback images.');
       }
     } catch (error) {
-      console.error('Failed to initialize Gemini API:', error);
+      console.error('❌ Image Generation Service - Failed to initialize Gemini API:', error);
     }
   }
 

@@ -36,13 +36,16 @@ class WallpaperService {
   private initializeAPI(): void {
     try {
       const apiKey = process.env.GEMINI_API_KEY || process.env.API_KEY;
-      if (apiKey && apiKey !== 'undefined') {
+      console.log('Initializing API with key:', apiKey ? `${apiKey.substring(0, 10)}...` : 'undefined');
+      
+      if (apiKey && apiKey !== 'undefined' && apiKey.trim() !== '') {
         this.genAI = new GoogleGenerativeAI(apiKey);
+        console.log('✅ Gemini API initialized successfully');
       } else {
-        console.warn('Gemini API key not found. Using fallback wallpapers.');
+        console.warn('⚠️ Gemini API key not found. Using fallback wallpapers.');
       }
     } catch (error) {
-      console.error('Failed to initialize Gemini API:', error);
+      console.error('❌ Failed to initialize Gemini API:', error);
     }
   }
 
@@ -121,8 +124,13 @@ class WallpaperService {
   }
 
   public async getTodayWallpaper(config: WallpaperConfig): Promise<string> {
+    console.log('🎯 getTodayWallpaper called with config:', config);
+    
     const today = this.getTodayDateString();
     const cache = this.loadCache();
+    
+    console.log('📅 Today:', today);
+    console.log('💾 Current cache:', cache);
     
     // Check if today's wallpaper exists in cache and is still valid
     const todayCache = cache.find(item => 
@@ -131,11 +139,13 @@ class WallpaperService {
     );
     
     if (todayCache) {
+      console.log('✅ Found cached wallpaper:', todayCache.imagePath);
       // Pre-generate tomorrow's wallpaper in background
       this.generateTomorrowWallpaper(config);
       return todayCache.imagePath;
     }
 
+    console.log('🔄 No cache found, generating new wallpaper...');
     // Generate today's wallpaper immediately
     const todayWallpaper = await this.generateWallpaperForDate(today, config);
     

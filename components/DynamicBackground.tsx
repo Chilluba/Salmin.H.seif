@@ -55,11 +55,13 @@ export const DynamicBackground: React.FC<DynamicBackgroundProps> = ({
 
   const loadTodayWallpaper = async () => {
     try {
+      console.log('🎨 Loading today\'s wallpaper...');
       setIsLoading(true);
       setError(null);
       
       // Get stored admin config or use defaults
       const adminConfig = getAdminConfig();
+      console.log('📋 Admin config loaded:', adminConfig);
       
       const config: WallpaperConfig = {
         theme: 'deadpool',
@@ -68,13 +70,19 @@ export const DynamicBackground: React.FC<DynamicBackgroundProps> = ({
         adminName: adminConfig.adminName
       };
 
+      console.log('🔧 Wallpaper config:', config);
       const wallpaperUrl = await wallpaperService.getTodayWallpaper(config);
+      console.log('🖼️ Wallpaper URL received:', wallpaperUrl);
       
       // Optimize wallpaper URL for current device
       const { width, height } = ImageUtils.getOptimalImageSize();
       const optimizedUrl = ImageUtils.getResponsiveImageUrl(wallpaperUrl, width, height);
       
+      console.log('📐 Optimized URL:', optimizedUrl);
       setCurrentWallpaper(optimizedUrl);
+      
+      // Dispatch event for status component
+      window.dispatchEvent(new CustomEvent('wallpaper-generation-complete'));
       
       // Preload fallback wallpapers for better performance
       const fallbackUrls = [
@@ -87,10 +95,12 @@ export const DynamicBackground: React.FC<DynamicBackgroundProps> = ({
       wallpaperService.cleanOldWallpapers();
       
     } catch (err) {
-      console.error('Error loading wallpaper:', err);
+      console.error('❌ Error loading wallpaper:', err);
       setError('Failed to load wallpaper');
       // Use fallback wallpaper
-      setCurrentWallpaper('https://i.imgur.com/Y5tM2nb.jpg');
+      const fallbackUrl = 'https://i.imgur.com/Y5tM2nb.jpg';
+      console.log('🔄 Using fallback wallpaper:', fallbackUrl);
+      setCurrentWallpaper(fallbackUrl);
     } finally {
       setIsLoading(false);
     }
@@ -173,12 +183,27 @@ export const DynamicBackground: React.FC<DynamicBackgroundProps> = ({
           backgroundImage: `url('${currentWallpaper}')`,
           backgroundPosition: 'center center',
           backgroundSize: 'cover',
-          backgroundAttachment: 'fixed',
           willChange: 'background-image'
         }}
-        onError={handleImageError}
       >
         <div className="absolute inset-0 bg-black/40"></div>
+        {/* Hidden img element for proper error handling */}
+        <img 
+          src={currentWallpaper} 
+          alt="" 
+          className="hidden" 
+          onError={handleImageError}
+          onLoad={() => console.log('✅ Wallpaper loaded successfully:', currentWallpaper)}
+        />
+        
+        {/* Debug info - remove in production */}
+        {process.env.NODE_ENV === 'development' && (
+          <div className="absolute top-20 left-4 bg-black/80 text-white p-2 rounded text-xs z-30">
+            <div>Current Wallpaper: {currentWallpaper}</div>
+            <div>Loading: {isLoading ? 'Yes' : 'No'}</div>
+            <div>Error: {error || 'None'}</div>
+          </div>
+        )}
       </motion.div>
       {children}
     </div>
