@@ -93,7 +93,9 @@ class WallpaperService {
     // For now, cycle through themed wallpapers based on date
     const today = new Date();
     const dayIndex = today.getDate() % this.fallbackWallpapers.length;
-    return this.fallbackWallpapers[dayIndex];
+    const selectedWallpaper = this.fallbackWallpapers[dayIndex];
+    console.log(`🎨 Selected themed wallpaper ${dayIndex + 1}/${this.fallbackWallpapers.length}:`, selectedWallpaper);
+    return selectedWallpaper;
   }
 
   private getTodayDateString(): string {
@@ -163,11 +165,16 @@ class WallpaperService {
   }
 
   private async generateWallpaperForDate(date: string, config: WallpaperConfig): Promise<string> {
+    console.log(`🏗️ Generating wallpaper for date: ${date}`);
+    
     try {
       const prompt = this.generateDeadpoolPrompt(config);
+      console.log('📝 Generated prompt:', prompt);
+      
       let wallpaperUrl: string;
 
       try {
+        console.log('🤖 Attempting AI generation...');
         wallpaperUrl = await imageGenerationService.generateImage({
           prompt,
           referenceImage: config.referenceImage,
@@ -175,9 +182,11 @@ class WallpaperService {
           width: 1920,
           height: 1080
         });
+        console.log('✅ AI generation successful:', wallpaperUrl);
       } catch (apiError) {
-        console.warn('Image generation failed, using themed fallback:', apiError);
+        console.warn('⚠️ AI generation failed, using themed fallback:', apiError);
         wallpaperUrl = this.getThemedWallpaper(config.referenceImage);
+        console.log('🔄 Using fallback wallpaper:', wallpaperUrl);
       }
 
       // Cache the result

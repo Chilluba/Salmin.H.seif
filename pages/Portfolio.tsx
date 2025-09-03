@@ -1,21 +1,42 @@
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PROJECTS } from '../constants';
 import { ProjectCard } from '../components/ProjectCard';
-import { ProjectCategory } from '../types';
+import { ProjectCategory, Project } from '../types';
 
 const allCategories = [ProjectCategory.ThreeD, ProjectCategory.Design, ProjectCategory.Video];
 
 export const Portfolio: React.FC = () => {
   const [activeFilter, setActiveFilter] = useState<ProjectCategory | 'All'>('All');
+  const [projects, setProjects] = useState<Project[]>(() => {
+    try {
+      const stored = localStorage.getItem('admin-projects');
+      return stored ? JSON.parse(stored) : PROJECTS;
+    } catch {
+      return PROJECTS;
+    }
+  });
+
+  useEffect(() => {
+    // Listen for project updates from admin
+    const handleProjectsUpdate = (event: CustomEvent) => {
+      setProjects(event.detail);
+    };
+
+    window.addEventListener('projects-updated', handleProjectsUpdate as EventListener);
+    
+    return () => {
+      window.removeEventListener('projects-updated', handleProjectsUpdate as EventListener);
+    };
+  }, []);
 
   const filteredProjects = useMemo(() => {
     if (activeFilter === 'All') {
-      return PROJECTS;
+      return projects;
     }
-    return PROJECTS.filter(p => p.category === activeFilter);
-  }, [activeFilter]);
+    return projects.filter(p => p.category === activeFilter);
+  }, [activeFilter, projects]);
 
   return (
     <motion.div

@@ -4,7 +4,7 @@ import { motion, Variants } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Settings } from 'lucide-react';
 import { DynamicBackground } from '../components/DynamicBackground';
-import { AdminDashboard } from '../components/AdminDashboard';
+import { FullAdminDashboard } from '../components/FullAdminDashboard';
 import { WallpaperStatus } from '../components/WallpaperStatus';
 
 // FIX: Explicitly typed with `Variants` to ensure type compatibility with framer-motion.
@@ -109,7 +109,7 @@ export const Home: React.FC = () => {
         </div>
         
         {/* Admin Dashboard */}
-        <AdminDashboard 
+        <FullAdminDashboard 
           isOpen={isAdminOpen} 
           onClose={() => setIsAdminOpen(false)} 
         />

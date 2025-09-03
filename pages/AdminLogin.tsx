@@ -1,26 +1,33 @@
-import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import { motion } from 'framer-motion';
+import { FullAdminDashboard } from '../components/FullAdminDashboard';
 
 export const AdminLogin: React.FC = () => {
-  const navigate = useNavigate();
+  const [isAdminOpen, setIsAdminOpen] = useState(true);
 
-  useEffect(() => {
-    // Redirect to homepage and trigger admin modal
-    navigate('/', { replace: true });
-    
-    // Small delay to ensure homepage loads, then trigger admin modal
+  const handleClose = () => {
+    setIsAdminOpen(false);
+    // Navigate back to homepage after closing
     setTimeout(() => {
-      const event = new CustomEvent('open-admin-dashboard');
-      window.dispatchEvent(event);
-    }, 100);
-  }, [navigate]);
+      window.location.hash = '#/';
+    }, 300);
+  };
 
   return (
-    <div className="flex items-center justify-center min-h-screen">
-      <div className="text-center">
-        <div className="w-8 h-8 border-2 border-red-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-        <p className="text-gray-400">Redirecting to admin dashboard...</p>
-      </div>
+    <div className="min-h-screen bg-[#0B0B0C] flex items-center justify-center">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="text-center"
+      >
+        <h1 className="text-4xl font-bold text-white mb-4 font-display">Admin Dashboard</h1>
+        <p className="text-gray-400 mb-8">Manage your portfolio content and settings</p>
+      </motion.div>
+
+      <FullAdminDashboard 
+        isOpen={isAdminOpen} 
+        onClose={handleClose} 
+      />
     </div>
   );
 };

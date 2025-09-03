@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { wallpaperService, WallpaperConfig } from '../services/wallpaperService';
+import { simpleWallpaperService } from '../services/simpleWallpaperService';
 import { useWallpaperPreloader } from './WallpaperPreloader';
 import { ImageUtils } from '../utils/imageUtils';
 
@@ -63,36 +64,45 @@ export const DynamicBackground: React.FC<DynamicBackgroundProps> = ({
       const adminConfig = getAdminConfig();
       console.log('📋 Admin config loaded:', adminConfig);
       
-      const config: WallpaperConfig = {
-        theme: 'deadpool',
-        style: 'cartoon/anime/stylized',
-        referenceImage: adminConfig.referenceImage,
-        adminName: adminConfig.adminName
+      // Use simplified service for immediate results
+      const isMobile = simpleWallpaperService.isMobileDevice();
+      const simpleConfig = {
+        hasReference: !!adminConfig.referenceImage,
+        deviceType: isMobile ? 'mobile' as const : 'desktop' as const
       };
+      
+      console.log('📱 Device type:', simpleConfig.deviceType);
+      
+      // Get immediate wallpaper
+      const immediateWallpaper = simpleWallpaperService.getTodayWallpaper(simpleConfig);
+      console.log('⚡ Immediate wallpaper:', immediateWallpaper);
+      setCurrentWallpaper(immediateWallpaper);
+      setIsLoading(false);
+      
+      // Try enhanced generation in background
+      setTimeout(async () => {
+        try {
+          const config: WallpaperConfig = {
+            theme: 'deadpool',
+            style: 'cartoon/anime/stylized',
+            referenceImage: adminConfig.referenceImage,
+            adminName: adminConfig.adminName
+          };
 
-      console.log('🔧 Wallpaper config:', config);
-      const wallpaperUrl = await wallpaperService.getTodayWallpaper(config);
-      console.log('🖼️ Wallpaper URL received:', wallpaperUrl);
-      
-      // Optimize wallpaper URL for current device
-      const { width, height } = ImageUtils.getOptimalImageSize();
-      const optimizedUrl = ImageUtils.getResponsiveImageUrl(wallpaperUrl, width, height);
-      
-      console.log('📐 Optimized URL:', optimizedUrl);
-      setCurrentWallpaper(optimizedUrl);
+          console.log('🔧 Attempting enhanced wallpaper generation...');
+          const enhancedWallpaper = await wallpaperService.getTodayWallpaper(config);
+          
+          if (enhancedWallpaper && enhancedWallpaper !== immediateWallpaper) {
+            console.log('🚀 Enhanced wallpaper ready, updating...');
+            setCurrentWallpaper(enhancedWallpaper);
+          }
+        } catch (enhancedError) {
+          console.warn('Enhanced generation failed, keeping simple wallpaper:', enhancedError);
+        }
+      }, 1000);
       
       // Dispatch event for status component
       window.dispatchEvent(new CustomEvent('wallpaper-generation-complete'));
-      
-      // Preload fallback wallpapers for better performance
-      const fallbackUrls = [
-        'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=1920&h=1080&fit=crop&q=80',
-        'https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=1920&h=1080&fit=crop&q=80',
-      ];
-      preloadMultiple(fallbackUrls).catch(console.warn);
-      
-      // Clean old wallpapers periodically
-      wallpaperService.cleanOldWallpapers();
       
     } catch (err) {
       console.error('❌ Error loading wallpaper:', err);
@@ -101,7 +111,6 @@ export const DynamicBackground: React.FC<DynamicBackgroundProps> = ({
       const fallbackUrl = 'https://i.imgur.com/Y5tM2nb.jpg';
       console.log('🔄 Using fallback wallpaper:', fallbackUrl);
       setCurrentWallpaper(fallbackUrl);
-    } finally {
       setIsLoading(false);
     }
   };
