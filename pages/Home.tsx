@@ -3,9 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { motion, Variants } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Settings } from 'lucide-react';
-import { DynamicBackground } from '../components/DynamicBackground';
+import { SimpleBackground } from '../components/SimpleBackground';
 import { FullAdminDashboard } from '../components/FullAdminDashboard';
-import { WallpaperStatus } from '../components/WallpaperStatus';
 
 // FIX: Explicitly typed with `Variants` to ensure type compatibility with framer-motion.
 const containerVariants: Variants = {
@@ -43,8 +42,8 @@ export const Home: React.FC = () => {
 
   return (
     <div className="relative w-screen h-screen -ml-4 sm:-ml-6 lg:-ml-8 -mt-8 md:-mt-16 flex items-center justify-center overflow-hidden">
-        {/* Dynamic Background */}
-        <DynamicBackground />
+        {/* Simple Background */}
+        <SimpleBackground />
         
         {/* Admin Access Button */}
         <button
@@ -113,9 +112,6 @@ export const Home: React.FC = () => {
           isOpen={isAdminOpen} 
           onClose={() => setIsAdminOpen(false)} 
         />
-        
-        {/* Wallpaper Status Indicator */}
-        <WallpaperStatus />
     </div>
   );
 };

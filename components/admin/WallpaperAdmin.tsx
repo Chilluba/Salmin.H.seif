@@ -1,227 +1,193 @@
-import React, { useState, useRef } from 'react';
-import { Upload, X, Save, RefreshCw } from 'lucide-react';
-import { ImageUtils } from '../../utils/imageUtils';
-
-interface AdminConfig {
-  referenceImage?: string;
-  adminName?: string;
-}
+import React, { useState, useRef, useCallback } from 'react';
+import { Upload, X, Save, Trash2 } from 'lucide-react';
+import { BackgroundService } from '../../services/backgroundService';
 
 export const WallpaperAdmin: React.FC = () => {
-  const [config, setConfig] = useState<AdminConfig>(() => {
-    try {
-      const stored = localStorage.getItem('wallpaper-admin-config');
-      return stored ? JSON.parse(stored) : {};
-    } catch {
-      return {};
-    }
+  const [isDragOver, setIsDragOver] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [previewImage, setPreviewImage] = useState<string | null>(() => {
+    const config = BackgroundService.getBackground();
+    return config?.imageData || null;
   });
-  
-  const [previewImage, setPreviewImage] = useState<string | null>(null);
-  const [isSaving, setIsSaving] = useState(false);
-  const [isRegenerating, setIsRegenerating] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
+  const handleFileUpload = useCallback(async (file: File) => {
     if (!file.type.startsWith('image/')) {
       alert('Please upload a valid image file.');
       return;
     }
 
-    if (file.size > 5 * 1024 * 1024) {
-      alert('Image must be smaller than 5MB.');
+    if (file.size > 10 * 1024 * 1024) { // 10MB limit
+      alert('Image must be smaller than 10MB.');
       return;
     }
 
+    setIsUploading(true);
+    
     try {
-      const resizedImageData = await ImageUtils.resizeImage(file, 512, 512);
-      setPreviewImage(resizedImageData);
-      setConfig(prev => ({ ...prev, referenceImage: resizedImageData }));
+      const imageData = await convertFileToBase64(file);
+      setPreviewImage(imageData);
+      BackgroundService.saveBackground(imageData);
+      
+      // Dispatch event to update background
+      window.dispatchEvent(new CustomEvent('background-updated'));
+      
+      alert('Background image uploaded successfully!');
     } catch (error) {
       console.error('Error processing image:', error);
       alert('Failed to process image. Please try a different file.');
+    } finally {
+      setIsUploading(false);
     }
+  }, []);
+
+  const convertFileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = () => reject(new Error('Failed to read file'));
+      reader.readAsDataURL(file);
+    });
   };
 
-  const removeImage = () => {
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+  }, []);
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    
+    const files = Array.from(e.dataTransfer.files);
+    if (files.length > 0) {
+      handleFileUpload(files[0]);
+    }
+  }, [handleFileUpload]);
+
+  const handleFileInputChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      handleFileUpload(file);
+    }
+  }, [handleFileUpload]);
+
+  const removeBackground = useCallback(() => {
     setPreviewImage(null);
-    setConfig(prev => ({ ...prev, referenceImage: undefined }));
+    BackgroundService.removeBackground();
+    window.dispatchEvent(new CustomEvent('background-updated'));
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
-  };
-
-  const saveConfig = async () => {
-    try {
-      setIsSaving(true);
-      localStorage.setItem('wallpaper-admin-config', JSON.stringify(config));
-      
-      const event = new CustomEvent('wallpaper-config-updated', { detail: config });
-      window.dispatchEvent(event);
-      
-      alert('Configuration saved successfully! The wallpaper will update immediately.');
-    } catch (error) {
-      console.error('Error saving config:', error);
-      alert('Failed to save configuration.');
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const regenerateWallpaper = async () => {
-    try {
-      setIsRegenerating(true);
-      
-      const event = new CustomEvent('wallpaper-config-updated', { detail: config });
-      window.dispatchEvent(event);
-      
-      alert('Wallpaper regeneration started! It will update shortly.');
-    } catch (error) {
-      console.error('Error regenerating wallpaper:', error);
-      alert('Failed to regenerate wallpaper.');
-    } finally {
-      setIsRegenerating(false);
-    }
-  };
+    alert('Background image removed. Homepage will now use black background.');
+  }, []);
 
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-xl font-bold text-white mb-4">Wallpaper Configuration</h3>
+        <h3 className="text-xl font-bold text-white mb-4">Homepage Background</h3>
         <p className="text-gray-400 mb-6">
-          Configure dynamic Deadpool-themed wallpapers with optional face personalization.
+          Upload an image to set as the homepage background. If no image is uploaded, the background will be black.
         </p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Configuration Panel */}
+        {/* Upload Panel */}
         <div className="space-y-6">
-          {/* Admin Name Input */}
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
-              Admin Name (optional)
-            </label>
-            <input
-              type="text"
-              value={config.adminName || ''}
-              onChange={(e) => setConfig(prev => ({ ...prev, adminName: e.target.value }))}
-              placeholder="Enter your name for personalized Deadpool"
-              className="w-full px-3 py-2 bg-[#2a2a2a] border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:border-red-500"
-            />
+          {/* Drag & Drop Zone */}
+          <div
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+            onClick={() => fileInputRef.current?.click()}
+            className={`
+              border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors
+              ${isDragOver 
+                ? 'border-red-500 bg-red-500/10' 
+                : 'border-gray-600 hover:border-red-500'
+              }
+            `}
+          >
+            {isUploading ? (
+              <div className="space-y-4">
+                <div className="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto"></div>
+                <p className="text-white">Uploading image...</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <Upload className="mx-auto text-gray-400" size={48} />
+                <div>
+                  <p className="text-white font-medium">Drop image here or click to browse</p>
+                  <p className="text-gray-400 text-sm mt-1">JPG, PNG, GIF up to 10MB</p>
+                </div>
+              </div>
+            )}
           </div>
 
-          {/* Reference Image Upload */}
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
-              Reference Face Image (optional)
-            </label>
-            <div className="space-y-4">
-              {!previewImage && !config.referenceImage ? (
-                <div
-                  onClick={() => fileInputRef.current?.click()}
-                  className="border-2 border-dashed border-gray-600 rounded-lg p-8 text-center cursor-pointer hover:border-red-500 transition-colors"
-                >
-                  <Upload className="mx-auto mb-2 text-gray-400" size={32} />
-                  <p className="text-gray-400">Click to upload reference image</p>
-                  <p className="text-xs text-gray-500 mt-1">JPG, PNG up to 5MB</p>
-                </div>
-              ) : (
-                <div className="relative">
-                  <img
-                    src={previewImage || config.referenceImage}
-                    alt="Reference preview"
-                    className="w-full h-32 object-cover rounded-lg border border-gray-600"
-                  />
-                  <button
-                    onClick={removeImage}
-                    className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
-                  >
-                    <X size={16} />
-                  </button>
-                </div>
-              )}
-              
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handleImageUpload}
-                className="hidden"
-              />
-            </div>
-          </div>
+          {/* File Input */}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            onChange={handleFileInputChange}
+            className="hidden"
+          />
 
-          {/* Action Buttons */}
-          <div className="space-y-3">
-            <div className="flex gap-3">
-              <button
-                onClick={saveConfig}
-                disabled={isSaving || isRegenerating}
-                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-              >
-                {isSaving ? (
-                  <>
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    Saving...
-                  </>
-                ) : (
-                  <>
-                    <Save size={16} />
-                    Save Config
-                  </>
-                )}
-              </button>
-            </div>
-            
+          {/* Remove Button */}
+          {previewImage && (
             <button
-              onClick={regenerateWallpaper}
-              disabled={isSaving || isRegenerating}
-              className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              onClick={removeBackground}
+              className="w-full px-4 py-3 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors flex items-center justify-center gap-2"
             >
-              {isRegenerating ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  Regenerating...
-                </>
-              ) : (
-                <>
-                  <RefreshCw size={16} />
-                  Regenerate Today's Wallpaper
-                </>
-              )}
+              <Trash2 size={16} />
+              Remove Background Image
             </button>
-          </div>
+          )}
         </div>
 
-        {/* Info Panel */}
+        {/* Preview Panel */}
         <div className="space-y-4">
           <div className="bg-[#2a2a2a] border border-gray-600 rounded-md p-4">
-            <h4 className="text-white font-semibold mb-2">How it Works</h4>
-            <ul className="text-sm text-gray-300 space-y-1">
-              <li>• New wallpapers generate automatically every 24 hours</li>
-              <li>• Desktop (1920x1080) and mobile (768x1024) variants created</li>
-              <li>• Reference image creates personalized Deadpool in cartoon style</li>
-              <li>• System caches wallpapers for instant loading</li>
-            </ul>
+            <h4 className="text-white font-semibold mb-4">Current Background</h4>
+            {previewImage ? (
+              <div className="space-y-4">
+                <img
+                  src={previewImage}
+                  alt="Background preview"
+                  className="w-full h-32 object-cover rounded-lg border border-gray-600"
+                />
+                <div className="text-sm text-gray-300">
+                  <p>✓ Background image is set</p>
+                  <p>✓ Image will be displayed on homepage</p>
+                  <p>✓ Changes are automatically saved</p>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="w-full h-32 bg-black rounded-lg border border-gray-600 flex items-center justify-center">
+                  <p className="text-gray-400">No background image set</p>
+                </div>
+                <div className="text-sm text-gray-300">
+                  <p>• Homepage will use black background</p>
+                  <p>• Upload an image to customize</p>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="bg-blue-900/20 border border-blue-600 rounded-md p-4">
-            <h4 className="text-blue-400 font-semibold mb-2">Current Status</h4>
-            <div className="text-sm text-gray-300 space-y-1">
-              <div>Desktop wallpaper: Active</div>
-              <div>Mobile wallpaper: Active</div>
-              <div>Next generation: {new Date(Date.now() + 24*60*60*1000).toLocaleDateString()}</div>
-            </div>
-          </div>
-
-          <div className="bg-[#2a2a2a] border border-gray-600 rounded-md p-4">
-            <p className="text-sm text-gray-300">
-              <strong>Note:</strong> The reference image will be used to create a stylized cartoon/anime version 
-              of Deadpool with your facial features. The result will be artistic, not photorealistic.
-            </p>
+            <h4 className="text-blue-400 font-semibold mb-2">How it Works</h4>
+            <ul className="text-sm text-gray-300 space-y-1">
+              <li>• Drag and drop or click to upload an image</li>
+              <li>• Image will be automatically resized to fit the screen</li>
+              <li>• Background is saved locally and persists across sessions</li>
+              <li>• Remove button clears the background (returns to black)</li>
+            </ul>
           </div>
         </div>
       </div>
