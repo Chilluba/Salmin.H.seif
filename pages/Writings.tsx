@@ -1,9 +1,8 @@
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 // FIX: Added the `Variants` type from framer-motion to resolve type errors.
 import { motion, useScroll, useSpring, Variants } from 'framer-motion';
 import { WRITINGS } from '../data/writings';
-import { Writing } from '../types';
 
 // FIX: Explicitly typed with `Variants` to ensure type compatibility with framer-motion.
 const headingVariants: Variants = {
@@ -18,45 +17,7 @@ const textBlockVariants: Variants = {
 };
 
 export const Writings: React.FC = () => {
-  const [writings, setWritings] = useState<Writing[]>(() => {
-    try {
-      const stored = localStorage.getItem('admin-writings');
-      return stored ? JSON.parse(stored) : WRITINGS;
-    } catch {
-      return WRITINGS;
-    }
-  });
-
-  useEffect(() => {
-    // Listen for writings updates from admin
-    const handleWritingsUpdate = (event: CustomEvent) => {
-      setWritings(event.detail);
-    };
-
-    window.addEventListener('writings-updated', handleWritingsUpdate as EventListener);
-    
-    return () => {
-      window.removeEventListener('writings-updated', handleWritingsUpdate as EventListener);
-    };
-  }, []);
-
-  const essay = writings[0]; // Display the first essay
-
-  // If no essays, show empty state
-  if (!essay) {
-    return (
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="text-center py-20"
-      >
-        <h1 className="font-display text-5xl md:text-7xl text-center mb-4">Writings</h1>
-        <p className="text-lg text-[#A1A1AA] mb-8">
-          No writings available yet. Check back soon!
-        </p>
-      </motion.div>
-    );
-  }
+  const essay = WRITINGS[0]; // For now, we're just displaying the first essay
 
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, {
