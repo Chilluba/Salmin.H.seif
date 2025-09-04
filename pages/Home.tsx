@@ -52,7 +52,7 @@ export const Home: React.FC = () => {
   }, []);
 
   return (
-    <div className="relative w-screen h-screen -ml-4 sm:-ml-6 lg:-ml-8 -mt-24 md:-mt-32 flex items-center justify-center overflow-hidden box-border pt-24 md:pt-32">
+    <div className="relative w-screen h-screen left-1/2 -translate-x-1/2 -mt-24 md:-mt-32 flex items-center justify-center overflow-hidden box-border pt-24 md:pt-32">
         <div 
             className="absolute inset-0 z-0 bg-cover bg-center transition-all duration-500"
             style={{ backgroundImage: `url('${HOME_BACKGROUND_URL}')` }}
