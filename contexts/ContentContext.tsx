@@ -13,17 +13,18 @@ interface ContentContextType {
 const ContentContext = createContext<ContentContextType | undefined>(undefined);
 
 // Helper to wait for the frame API to be ready
-const getFrame = (): Promise<any> => {
-    return new Promise((resolve, reject) => {
+const getFrame = (): Promise<any | null> => {
+    return new Promise((resolve) => {
         let attempts = 0;
         const checkFrame = () => {
-            if ((window as any).frame) {
+            // Check for frame and frame.storage to be safe
+            if ((window as any).frame && (window as any).frame.storage) {
                 resolve((window as any).frame);
             } else if (attempts < 50) { // Timeout after ~2.5 seconds
                 attempts++;
                 setTimeout(checkFrame, 50);
             } else {
-                reject(new Error("Frame API not available after multiple attempts."));
+                resolve(null); // Not found, resolve with null instead of rejecting
             }
         };
         checkFrame();
@@ -37,11 +38,19 @@ export const ContentProvider: React.FC<{ children: ReactNode }> = ({ children })
 
   useEffect(() => {
     const loadContent = async () => {
+      const frame = await getFrame();
+      let storedContentSource: string | null = null;
+      
       try {
-        const frame = await getFrame();
-        const storedContent = await frame.storage.get('siteContent');
-        if (storedContent) {
-          const parsedContent = JSON.parse(storedContent);
+        if (frame) {
+          storedContentSource = await frame.storage.get('siteContent');
+        } else {
+          console.warn("Global storage API not found. Falling back to localStorage. Changes will not be synced across devices.");
+          storedContentSource = localStorage.getItem('siteContent');
+        }
+  
+        if (storedContentSource) {
+          const parsedContent = JSON.parse(storedContentSource);
           // Handle legacy background property for smooth upgrade.
           if (parsedContent.home && parsedContent.home.background) {
             delete parsedContent.home.background;
@@ -53,7 +62,7 @@ export const ContentProvider: React.FC<{ children: ReactNode }> = ({ children })
           setContent(DEFAULT_SITE_CONTENT);
         }
       } catch (error) {
-        console.error("Failed to load content from global storage", error);
+        console.error("Failed to load or parse content, using default.", error);
         setContent(DEFAULT_SITE_CONTENT);
       } finally {
         setIsLoaded(true);
@@ -65,11 +74,17 @@ export const ContentProvider: React.FC<{ children: ReactNode }> = ({ children })
 
   const updateContent = async (newContent: SiteContent) => {
     setContent(newContent);
+    const frame = await getFrame();
+    const contentString = JSON.stringify(newContent);
+
     try {
-      const frame = await getFrame();
-      await frame.storage.set('siteContent', JSON.stringify(newContent));
+        if (frame) {
+            await frame.storage.set('siteContent', contentString);
+        } else {
+            localStorage.setItem('siteContent', contentString);
+        }
     } catch (error) {
-      console.error("Failed to save content to global storage", error);
+      console.error("Failed to save content:", error);
     }
   };
 
