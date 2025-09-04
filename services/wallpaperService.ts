@@ -1,6 +1,7 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { imageGenerationService } from './imageGenerationService';
 import { promptService } from './promptService';
+import { WALLPAPER_CONFIG } from '../config/wallpaperConfig';
 
 export interface WallpaperConfig {
   theme: string;
@@ -19,15 +20,7 @@ export interface WallpaperCache {
 class WallpaperService {
   private genAI: GoogleGenerativeAI | null = null;
   private cacheKey = 'wallpaper-cache';
-  private fallbackWallpapers = [
-    'https://i.imgur.com/Y5tM2nb.jpg', // Original
-    'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=1920&h=1080&fit=crop&q=80', // Red abstract
-    'https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=1920&h=1080&fit=crop&q=80', // Comic book
-    'https://images.unsplash.com/photo-1607734834519-d8576ae60ea4?w=1920&h=1080&fit=crop&q=80', // Urban night
-    'https://images.unsplash.com/photo-1608889175250-c3b0c1667d3a?w=1920&h=1080&fit=crop&q=80', // Red energy
-    'https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=1920&h=1080&fit=crop&q=80', // Dark urban
-    'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=1920&h=1080&fit=crop&q=80', // Abstract red/black
-  ];
+  private fallbackWallpapers = WALLPAPER_CONFIG.FALLBACK_WALLPAPERS;
 
   constructor() {
     this.initializeAPI();
@@ -42,7 +35,7 @@ class WallpaperService {
         this.genAI = new GoogleGenerativeAI(apiKey);
         console.log('✅ Gemini API initialized successfully');
       } else {
-        console.warn('⚠️ Gemini API key not found. Using fallback wallpapers.');
+        console.warn('⚠️ Gemini API key not found. Using Deadpool-themed fallback wallpapers.');
       }
     } catch (error) {
       console.error('❌ Failed to initialize Gemini API:', error);
@@ -75,7 +68,7 @@ class WallpaperService {
       // For image generation, we would need to use a different approach
       // For now, we'll simulate the generation and return a themed wallpaper
       
-      console.log('Generating wallpaper with prompt:', prompt);
+      console.log('Generating Deadpool wallpaper with prompt:', prompt);
       
       // Simulate API call delay
       await new Promise(resolve => setTimeout(resolve, 2000));
@@ -94,7 +87,7 @@ class WallpaperService {
     const today = new Date();
     const dayIndex = today.getDate() % this.fallbackWallpapers.length;
     const selectedWallpaper = this.fallbackWallpapers[dayIndex];
-    console.log(`🎨 Selected themed wallpaper ${dayIndex + 1}/${this.fallbackWallpapers.length}:`, selectedWallpaper);
+    console.log(`🎨 Selected Deadpool-themed wallpaper ${dayIndex + 1}/${this.fallbackWallpapers.length}:`, selectedWallpaper);
     return selectedWallpaper;
   }
 
@@ -147,7 +140,7 @@ class WallpaperService {
       return todayCache.imagePath;
     }
 
-    console.log('🔄 No cache found, generating new wallpaper...');
+    console.log('🔄 No cache found, generating new Deadpool wallpaper...');
     // Generate today's wallpaper immediately
     const todayWallpaper = await this.generateWallpaperForDate(today, config);
     
@@ -165,11 +158,11 @@ class WallpaperService {
   }
 
   private async generateWallpaperForDate(date: string, config: WallpaperConfig): Promise<string> {
-    console.log(`🏗️ Generating wallpaper for date: ${date}`);
+    console.log(`🏗️ Generating Deadpool wallpaper for date: ${date}`);
     
     try {
       const prompt = this.generateDeadpoolPrompt(config);
-      console.log('📝 Generated prompt:', prompt);
+      console.log('📝 Generated Deadpool prompt:', prompt);
       
       let wallpaperUrl: string;
 
@@ -184,9 +177,9 @@ class WallpaperService {
         });
         console.log('✅ AI generation successful:', wallpaperUrl);
       } catch (apiError) {
-        console.warn('⚠️ AI generation failed, using themed fallback:', apiError);
+        console.warn('⚠️ AI generation failed, using Deadpool-themed fallback:', apiError);
         wallpaperUrl = this.getThemedWallpaper(config.referenceImage);
-        console.log('🔄 Using fallback wallpaper:', wallpaperUrl);
+        console.log('🔄 Using Deadpool fallback wallpaper:', wallpaperUrl);
       }
 
       // Cache the result
@@ -207,7 +200,7 @@ class WallpaperService {
       return wallpaperUrl;
       
     } catch (error) {
-      console.error(`Error generating wallpaper for ${date}:`, error);
+      console.error(`Error generating Deadpool wallpaper for ${date}:`, error);
       return this.getPlaceholderWallpaper();
     }
   }
@@ -227,16 +220,16 @@ class WallpaperService {
     setTimeout(async () => {
       try {
         await this.generateWallpaperForDate(tomorrow, config);
-        console.log('Pre-generated tomorrow\'s wallpaper successfully');
+        console.log('Pre-generated tomorrow\'s Deadpool wallpaper successfully');
       } catch (error) {
-        console.error('Error pre-generating tomorrow\'s wallpaper:', error);
+        console.error('Error pre-generating tomorrow\'s Deadpool wallpaper:', error);
       }
     }, 1000);
   }
 
   private getPlaceholderWallpaper(): string {
-    // Return the current static wallpaper as fallback
-    return 'https://i.imgur.com/Y5tM2nb.jpg';
+    // Return the first Deadpool-themed wallpaper as fallback
+    return this.fallbackWallpapers[0];
   }
 
   public cleanOldWallpapers(): void {

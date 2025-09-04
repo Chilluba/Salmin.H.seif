@@ -4,6 +4,7 @@ import { wallpaperService, WallpaperConfig } from '../services/wallpaperService'
 import { simpleWallpaperService } from '../services/simpleWallpaperService';
 import { useWallpaperPreloader } from './WallpaperPreloader';
 import { ImageUtils } from '../utils/imageUtils';
+import { WALLPAPER_CONFIG } from '../config/wallpaperConfig';
 
 interface DynamicBackgroundProps {
   className?: string;
@@ -24,7 +25,7 @@ export const DynamicBackground: React.FC<DynamicBackgroundProps> = ({
     
     // Listen for admin config updates
     const handleConfigUpdate = () => {
-      console.log('Admin config updated, regenerating wallpaper...');
+      console.log('Admin config updated, regenerating Deadpool wallpaper...');
       wallpaperService.forceRegenerate();
       loadTodayWallpaper();
     };
@@ -56,7 +57,7 @@ export const DynamicBackground: React.FC<DynamicBackgroundProps> = ({
 
   const loadTodayWallpaper = async () => {
     try {
-      console.log('🎨 Loading today\'s wallpaper...');
+      console.log('🎨 Loading today\'s Deadpool wallpaper...');
       setIsLoading(true);
       setError(null);
       
@@ -75,7 +76,7 @@ export const DynamicBackground: React.FC<DynamicBackgroundProps> = ({
       
       // Get immediate wallpaper
       const immediateWallpaper = simpleWallpaperService.getTodayWallpaper(simpleConfig);
-      console.log('⚡ Immediate wallpaper:', immediateWallpaper);
+      console.log('⚡ Immediate Deadpool wallpaper:', immediateWallpaper);
       setCurrentWallpaper(immediateWallpaper);
       setIsLoading(false);
       
@@ -89,15 +90,15 @@ export const DynamicBackground: React.FC<DynamicBackgroundProps> = ({
             adminName: adminConfig.adminName
           };
 
-          console.log('🔧 Attempting enhanced wallpaper generation...');
+          console.log('🔧 Attempting enhanced Deadpool wallpaper generation...');
           const enhancedWallpaper = await wallpaperService.getTodayWallpaper(config);
           
           if (enhancedWallpaper && enhancedWallpaper !== immediateWallpaper) {
-            console.log('🚀 Enhanced wallpaper ready, updating...');
+            console.log('🚀 Enhanced Deadpool wallpaper ready, updating...');
             setCurrentWallpaper(enhancedWallpaper);
           }
         } catch (enhancedError) {
-          console.warn('Enhanced generation failed, keeping simple wallpaper:', enhancedError);
+          console.warn('Enhanced generation failed, keeping simple Deadpool wallpaper:', enhancedError);
         }
       }, 1000);
       
@@ -105,11 +106,11 @@ export const DynamicBackground: React.FC<DynamicBackgroundProps> = ({
       window.dispatchEvent(new CustomEvent('wallpaper-generation-complete'));
       
     } catch (err) {
-      console.error('❌ Error loading wallpaper:', err);
-      setError('Failed to load wallpaper');
-      // Use fallback wallpaper
-      const fallbackUrl = 'https://i.imgur.com/Y5tM2nb.jpg';
-      console.log('🔄 Using fallback wallpaper:', fallbackUrl);
+      console.error('❌ Error loading Deadpool wallpaper:', err);
+      setError('Failed to load Deadpool wallpaper');
+      // Use fallback Deadpool wallpaper
+      const fallbackUrl = WALLPAPER_CONFIG.FALLBACK_WALLPAPERS[0];
+      console.log('🔄 Using Deadpool fallback wallpaper:', fallbackUrl);
       setCurrentWallpaper(fallbackUrl);
       setIsLoading(false);
     }
@@ -125,13 +126,9 @@ export const DynamicBackground: React.FC<DynamicBackgroundProps> = ({
   };
 
   const handleImageError = () => {
-    console.warn('Wallpaper failed to load, using fallback');
-    // Cycle through fallback wallpapers if current one fails
-    const fallbackWallpapers = [
-      'https://i.imgur.com/Y5tM2nb.jpg',
-      'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=1920&h=1080&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=1920&h=1080&fit=crop&q=80',
-    ];
+    console.warn('Deadpool wallpaper failed to load, using fallback');
+    // Cycle through Deadpool fallback wallpapers if current one fails
+    const fallbackWallpapers = WALLPAPER_CONFIG.FALLBACK_WALLPAPERS;
     
     const currentIndex = fallbackWallpapers.indexOf(currentWallpaper);
     const nextIndex = (currentIndex + 1) % fallbackWallpapers.length;
@@ -151,7 +148,7 @@ export const DynamicBackground: React.FC<DynamicBackgroundProps> = ({
           <div className="bg-black/70 px-6 py-3 rounded-lg backdrop-blur-sm">
             <div className="flex items-center gap-3 text-white">
               <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-              <span className="text-sm">Generating today's wallpaper...</span>
+              <span className="text-sm">Generating today's Deadpool wallpaper...</span>
             </div>
           </div>
         </div>
@@ -199,16 +196,16 @@ export const DynamicBackground: React.FC<DynamicBackgroundProps> = ({
         {/* Hidden img element for proper error handling */}
         <img 
           src={currentWallpaper} 
-          alt="" 
+          alt="Deadpool-themed background" 
           className="hidden" 
           onError={handleImageError}
-          onLoad={() => console.log('✅ Wallpaper loaded successfully:', currentWallpaper)}
+          onLoad={() => console.log('✅ Deadpool wallpaper loaded successfully:', currentWallpaper)}
         />
         
         {/* Debug info - remove in production */}
         {process.env.NODE_ENV === 'development' && (
           <div className="absolute top-20 left-4 bg-black/80 text-white p-2 rounded text-xs z-30">
-            <div>Current Wallpaper: {currentWallpaper}</div>
+            <div>Current Deadpool Wallpaper: {currentWallpaper}</div>
             <div>Loading: {isLoading ? 'Yes' : 'No'}</div>
             <div>Error: {error || 'None'}</div>
           </div>

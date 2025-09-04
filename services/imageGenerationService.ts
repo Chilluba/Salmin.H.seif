@@ -1,5 +1,6 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { geminiImageService } from './geminiImageService';
+import { WALLPAPER_CONFIG } from '../config/wallpaperConfig';
 
 export interface ImageGenerationConfig {
   prompt: string;
@@ -11,13 +12,7 @@ export interface ImageGenerationConfig {
 
 export class ImageGenerationService {
   private genAI: GoogleGenerativeAI | null = null;
-  private fallbackImages = [
-    'https://images.unsplash.com/photo-1608889175250-c3b0c1667d3a?w=1920&h=1080&fit=crop&q=80', // Red abstract
-    'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=1920&h=1080&fit=crop&q=80', // Dark red/black
-    'https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=1920&h=1080&fit=crop&q=80', // Comic style
-    'https://images.unsplash.com/photo-1607734834519-d8576ae60ea4?w=1920&h=1080&fit=crop&q=80', // Urban/city
-    'https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=1920&h=1080&fit=crop&q=80', // Action scene
-  ];
+  private fallbackImages = WALLPAPER_CONFIG.FALLBACK_WALLPAPERS;
 
   constructor() {
     this.initializeAPI();
@@ -32,7 +27,7 @@ export class ImageGenerationService {
         this.genAI = new GoogleGenerativeAI(apiKey);
         console.log('✅ Image Generation Service - Gemini API initialized');
       } else {
-        console.warn('⚠️ Image Generation Service - API key not found. Using fallback images.');
+        console.warn('⚠️ Image Generation Service - API key not found. Using Deadpool-themed fallback images.');
       }
     } catch (error) {
       console.error('❌ Image Generation Service - Failed to initialize Gemini API:', error);
@@ -47,7 +42,7 @@ export class ImageGenerationService {
         
         try {
           enhancedPrompt = await geminiImageService.generateImagePrompt(config.prompt, config.referenceImage);
-          console.log('Enhanced prompt generated:', enhancedPrompt);
+          console.log('Enhanced Deadpool prompt generated:', enhancedPrompt);
         } catch (promptError) {
           console.warn('Failed to enhance prompt, using original:', promptError);
         }
@@ -67,11 +62,11 @@ export class ImageGenerationService {
         return this.getThemedFallback(config, enhancedPrompt);
         
       } else {
-        console.log('Gemini API not available, using themed fallbacks');
+        console.log('Gemini API not available, using Deadpool-themed fallbacks');
         return this.getThemedFallback(config);
       }
     } catch (error) {
-      console.error('Error generating image:', error);
+      console.error('Error generating Deadpool image:', error);
       return this.getThemedFallback(config);
     }
   }
@@ -83,7 +78,7 @@ export class ImageGenerationService {
       const model = this.genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
       
       const enhancementPrompt = `
-        Enhance this image generation prompt to be more detailed and specific for creating a high-quality wallpaper:
+        Enhance this Deadpool image generation prompt to be more detailed and specific for creating a high-quality wallpaper:
         
         Original prompt: "${basePrompt}"
         
@@ -93,6 +88,7 @@ export class ImageGenerationService {
         - Ensure it's suitable for wallpaper generation
         - Keep the Deadpool theme strong
         - Make it cinematic and dynamic
+        - Ensure the main subject is positioned on the right side of the image
         
         Return only the enhanced prompt, nothing else.
       `;
@@ -102,7 +98,7 @@ export class ImageGenerationService {
       
       return enhancedPrompt || basePrompt;
     } catch (error) {
-      console.error('Error enhancing prompt:', error);
+      console.error('Error enhancing Deadpool prompt:', error);
       return basePrompt;
     }
   }
@@ -121,7 +117,7 @@ export class ImageGenerationService {
     
     const index = (seed + variation) % this.fallbackImages.length;
     
-    console.log(`Selected themed wallpaper ${index + 1}/${this.fallbackImages.length} for ${today}`);
+    console.log(`Selected Deadpool-themed wallpaper ${index + 1}/${this.fallbackImages.length} for ${today}`);
     return this.fallbackImages[index];
   }
 

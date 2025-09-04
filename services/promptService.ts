@@ -9,11 +9,11 @@ export interface PromptConfig {
 
 export class PromptService {
   private baseDeadpoolPrompts = [
-    "A dynamic stylized cartoon illustration of Deadpool in an epic action pose, leaping through the air with katanas drawn, against a vibrant comic book explosion background with bold red and black color scheme",
-    "Deadpool in a heroic stance atop a skyscraper at sunset, cape flowing dramatically, city skyline in background, rendered in anime/cartoon style with cel-shading and vibrant colors",
-    "Action-packed scene of Deadpool in combat, surrounded by comic book-style motion lines and impact effects, dramatic lighting, cartoon/anime art style with high contrast colors",
-    "Deadpool performing an acrobatic flip with weapons spinning, set against a graffiti-covered urban wall, street art aesthetic, stylized cartoon rendering with bold outlines",
-    "Cinematic wide shot of Deadpool standing confidently in a dramatic pose, explosion effects in background, comic book panel style with speech bubbles and onomatopoeia effects"
+    "A dynamic stylized cartoon illustration of Deadpool in an epic action pose, leaping through the air with katanas drawn, positioned on the RIGHT SIDE of the image, against a vibrant comic book explosion background with bold red and black color scheme",
+    "Deadpool in a heroic stance atop a skyscraper at sunset, cape flowing dramatically, positioned on the RIGHT SIDE of the composition, city skyline in background, rendered in anime/cartoon style with cel-shading and vibrant colors",
+    "Action-packed scene of Deadpool in combat, surrounded by comic book-style motion lines and impact effects, CHARACTER POSITIONED ON THE RIGHT SIDE, dramatic lighting, cartoon/anime art style with high contrast colors",
+    "Deadpool performing an acrobatic flip with weapons spinning, positioned on the RIGHT SIDE of the frame, set against a graffiti-covered urban wall, street art aesthetic, stylized cartoon rendering with bold outlines",
+    "Cinematic wide shot of Deadpool standing confidently in a dramatic pose on the RIGHT SIDE of the image, explosion effects in background, comic book panel style with speech bubbles and onomatopoeia effects"
   ];
 
   private backgroundVariations = [
@@ -62,13 +62,16 @@ export class PromptService {
       Art style: ${style}, high quality digital artwork, 1920x1080 wallpaper resolution.
       
       Visual requirements:
+      - IMPORTANT: Main character (Deadpool) MUST be positioned on the RIGHT SIDE of the image
+      - Left side should have open space or minimal background elements for text overlay
       - Bold, vibrant colors with strong contrast
       - Clean composition suitable for desktop wallpaper
       - Cartoon/anime aesthetic, NOT photorealistic
       - Dynamic and energetic feel
       - Professional illustration quality
+      - Proper aspect ratio 16:9 for desktop wallpaper
       
-      Technical specs: High resolution, optimized for desktop display, vibrant color palette.
+      Technical specs: High resolution, optimized for desktop display, vibrant color palette, right-side character positioning for UI overlay compatibility.
     `.trim();
 
     return fullPrompt;
