@@ -10,11 +10,14 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const port = 3001;
+const port = process.env.PORT || 3001;
 
 // Middleware
 app.use(cors());
 app.use(bodyParser.json());
+
+// Serve static files from the 'dist' directory
+app.use(express.static(path.join(__dirname, '..', 'dist')));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Storage for uploaded background image
@@ -84,14 +87,13 @@ app.post('/login', (req, res) => {
   }
 });
 
+import { Request, Response, NextFunction } from 'express';
+
 // Middleware to check token for protected routes
-const isAuthenticated = (req, res, next) => {
-    const authHeader = req.headers.authorization;
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-        const token = authHeader.slice(7); // Remove 'Bearer ' prefix
-        if (token === authToken) {
-            return next();
-        }
+const isAuthenticated = (req: Request, res: Response, next: NextFunction) => {
+    const token = req.headers.authorization?.split(' ')[1];
+    if (token && token === authToken) {
+        return next();
     }
     res.status(403).json({ message: 'Forbidden' });
 };
@@ -101,6 +103,10 @@ app.get('/admin-data', isAuthenticated, (req, res) => {
     res.json({ data: 'Some secret admin data' });
 });
 
+// Catch-all route to serve index.html
+app.get(/.*/, (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'dist', 'index.html'));
+});
 
 app.listen(port, () => {
   console.log(`Server listening at http://localhost:${port}`);

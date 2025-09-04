@@ -9,9 +9,7 @@
     "dev:server": "tsx watch server/server.ts",
     "build": "vite build && npm run build:server",
     "build:server": "tsc -p server/tsconfig.server.json",
-    "start": "npm-run-all --parallel start:client start:server",
-    "start:client": "vite preview",
-    "start:server": "node server/dist/server.js",
+    "start": "node server/dist/server.js",
     "preview": "vite preview"
   },
   "dependencies": {
