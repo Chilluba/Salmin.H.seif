@@ -86,9 +86,12 @@ app.post('/login', (req, res) => {
 
 // Middleware to check token for protected routes
 const isAuthenticated = (req, res, next) => {
-    const token = req.headers.authorization?.split(' ')[1];
-    if (token && token === authToken) {
-        return next();
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+        const token = authHeader.slice(7); // Remove 'Bearer ' prefix
+        if (token === authToken) {
+            return next();
+        }
     }
     res.status(403).json({ message: 'Forbidden' });
 };
