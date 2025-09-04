@@ -1,28 +1,36 @@
-export interface AuthConfig {
-  password: string;
-  lastChanged?: Date;
-}
-
 export class AuthService {
-  private static readonly AUTH_KEY = 'admin-auth-config';
-  private static readonly DEFAULT_PASSWORD = 'admin';
+  private static readonly TOKEN_KEY = 'admin-auth-token';
 
   public static isAuthenticated(): boolean {
     try {
-      const token = sessionStorage.getItem('admin-auth-token');
-      return token === 'authenticated';
+      const token = localStorage.getItem(this.TOKEN_KEY);
+      return !!token;
     } catch {
       return false;
     }
   }
 
-  public static login(password: string): boolean {
+  public static getToken(): string | null {
     try {
-      const config = this.getAuthConfig();
-      const correctPassword = config?.password || this.DEFAULT_PASSWORD;
-      
-      if (password === correctPassword) {
-        sessionStorage.setItem('admin-auth-token', 'authenticated');
+      return localStorage.getItem(this.TOKEN_KEY);
+    } catch {
+      return null;
+    }
+  }
+
+  public static async login(password: string): Promise<boolean> {
+    try {
+      const response = await fetch('http://localhost:3001/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ password }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        localStorage.setItem(this.TOKEN_KEY, data.token);
         return true;
       }
       return false;
@@ -33,47 +41,9 @@ export class AuthService {
 
   public static logout(): void {
     try {
-      sessionStorage.removeItem('admin-auth-token');
+      localStorage.removeItem(this.TOKEN_KEY);
     } catch (error) {
       console.error('Error logging out:', error);
     }
-  }
-
-  public static changePassword(currentPassword: string, newPassword: string): boolean {
-    try {
-      const config = this.getAuthConfig();
-      const correctPassword = config?.password || this.DEFAULT_PASSWORD;
-      
-      if (currentPassword !== correctPassword) {
-        return false;
-      }
-
-      const newConfig: AuthConfig = {
-        password: newPassword,
-        lastChanged: new Date()
-      };
-
-      localStorage.setItem(this.AUTH_KEY, JSON.stringify(newConfig));
-      return true;
-    } catch (error) {
-      console.error('Error changing password:', error);
-      return false;
-    }
-  }
-
-  public static getAuthConfig(): AuthConfig | null {
-    try {
-      const stored = localStorage.getItem(this.AUTH_KEY);
-      if (!stored) return null;
-      
-      const config: AuthConfig = JSON.parse(stored);
-      return config;
-    } catch {
-      return null;
-    }
-  }
-
-  public static getDefaultPassword(): string {
-    return this.DEFAULT_PASSWORD;
   }
 }

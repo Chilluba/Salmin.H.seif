@@ -28,16 +28,28 @@ const AnimatedRoutes: React.FC = () => {
     );
 }
 
-const App: React.FC = () => {
+const Layout: React.FC = () => {
+  const location = useLocation();
+  const showBackground = location.pathname === '/' || location.pathname === '/login';
+
   return (
-    <HashRouter>
-      <div className="bg-[#0B0B0C] text-[#F5F7FA] min-h-screen flex flex-col font-body">
+    <div className="bg-[#0B0B0C] text-[#F5F7FA] min-h-screen flex flex-col font-body relative">
+      {showBackground && <SimpleBackground />}
+      <div className="relative z-10 flex flex-col flex-grow">
         <Header />
         <main className="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24 md:pt-32">
-            <AnimatedRoutes />
+          <AnimatedRoutes />
         </main>
         <Footer />
       </div>
+    </div>
+  );
+}
+
+const App: React.FC = () => {
+  return (
+    <HashRouter>
+      <Layout />
     </HashRouter>
   );
 };

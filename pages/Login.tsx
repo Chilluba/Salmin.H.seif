@@ -24,7 +24,7 @@ export const Login: React.FC = () => {
     setError('');
 
     try {
-      const success = AuthService.login(password);
+      const success = await AuthService.login(password);
       
       if (success) {
         // Redirect to admin dashboard
@@ -47,9 +47,7 @@ export const Login: React.FC = () => {
   };
 
   return (
-    <div className="relative w-screen h-screen -ml-4 sm:-ml-6 lg:-ml-8 -mt-8 md:-mt-16 flex items-center justify-center overflow-hidden">
-      <SimpleBackground />
-      
+    <div className="flex items-center justify-center">
       <div className="relative z-10 w-full max-w-md mx-auto px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

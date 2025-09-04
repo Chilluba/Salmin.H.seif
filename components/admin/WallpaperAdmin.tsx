@@ -24,31 +24,33 @@ export const WallpaperAdmin: React.FC = () => {
 
     setIsUploading(true);
     
+    const formData = new FormData();
+    formData.append('background', file);
+
     try {
-      const imageData = await convertFileToBase64(file);
-      setPreviewImage(imageData);
-      BackgroundService.saveBackground(imageData);
+      const response = await fetch('http://localhost:3001/upload-background', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('Upload failed');
+      }
+
+      const data = await response.json();
+      setPreviewImage(`http://localhost:3001${data.imageUrl}`);
       
       // Dispatch event to update background
       window.dispatchEvent(new CustomEvent('background-updated'));
       
       alert('Background image uploaded successfully!');
     } catch (error) {
-      console.error('Error processing image:', error);
-      alert('Failed to process image. Please try a different file.');
+      console.error('Error uploading image:', error);
+      alert('Failed to upload image. Please try again.');
     } finally {
       setIsUploading(false);
     }
   }, []);
-
-  const convertFileToBase64 = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = () => reject(new Error('Failed to read file'));
-      reader.readAsDataURL(file);
-    });
-  };
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -77,14 +79,34 @@ export const WallpaperAdmin: React.FC = () => {
     }
   }, [handleFileUpload]);
 
-  const removeBackground = useCallback(() => {
-    setPreviewImage(null);
-    BackgroundService.removeBackground();
-    window.dispatchEvent(new CustomEvent('background-updated'));
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
+  useEffect(() => {
+    const fetchBackground = async () => {
+      try {
+        const response = await fetch('http://localhost:3001/background');
+        const data = await response.json();
+        if (data.imageUrl !== '/uploads/default-background.jpg') {
+          setPreviewImage(`http://localhost:3001${data.imageUrl}`);
+        }
+      } catch (error) {
+        console.error('Error fetching background:', error);
+      }
+    };
+    fetchBackground();
+  }, []);
+
+  const removeBackground = useCallback(async () => {
+    try {
+      await fetch('http://localhost:3001/remove-background', { method: 'POST' });
+      setPreviewImage(null);
+      window.dispatchEvent(new CustomEvent('background-updated'));
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+      alert('Background image removed. Homepage will now use black background.');
+    } catch (error) {
+      console.error('Error removing background:', error);
+      alert('Failed to remove background. Please try again.');
     }
-    alert('Background image removed. Homepage will now use black background.');
   }, []);
 
   return (
