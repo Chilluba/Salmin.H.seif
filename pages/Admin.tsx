@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LogOut, Save, Upload, Trash2, Home, User, Briefcase, Mail, Edit3, Settings, PlusCircle, X } from 'lucide-react';
+import { LogOut, Save, Download, Trash2, Home, User, Briefcase, Mail, Edit3, Settings, PlusCircle, X } from 'lucide-react';
 import { useContent } from '../contexts/ContentContext';
 import { SiteContent, Project, Skill, TimelineEvent, ProjectCategory, Writing, WritingContent } from '../types';
 
@@ -59,20 +59,18 @@ export const Admin: React.FC = () => {
         }
     };
 
-    const handleWallpaperUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const result = e.target?.result as string;
-                setHomeState({ ...homeState, background: result });
-            };
-            reader.readAsDataURL(file);
-        }
-    };
-    
-    const handleRemoveWallpaper = () => {
-        setHomeState({ ...homeState, background: null });
+    const handleExportContent = () => {
+        const contentString = JSON.stringify(content, null, 2);
+        const blob = new Blob([contentString], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'siteContent.json';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showStatusMessage('Content exported as siteContent.json!');
     };
 
     const handleLogout = () => {
@@ -215,16 +213,10 @@ export const Admin: React.FC = () => {
                                         </div>
                                          <div>
                                             <h2 className="font-accent text-3xl font-bold mb-4">Homepage Wallpaper</h2>
-                                             <div className="flex gap-4">
-                                                <label className="cursor-pointer inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 transition-colors">
-                                                    <Upload size={16} /> Choose Image
-                                                    <input type="file" accept="image/*" className="hidden" onChange={handleWallpaperUpload} />
-                                                </label>
-                                                {homeState.background && (
-                                                     <button onClick={handleRemoveWallpaper} className="inline-flex items-center gap-2 px-4 py-2 bg-gray-600 text-white font-semibold rounded-md hover:bg-gray-700 transition-colors">
-                                                        <Trash2 size={16} /> Remove
-                                                    </button>
-                                                )}
+                                            <div>
+                                                <label htmlFor="backgroundUrl" className="block text-sm font-medium text-[#A1A1AA]">Homepage Wallpaper URL</label>
+                                                <input type="url" id="backgroundUrl" placeholder="https://i.imgur.com/your-image.jpg" value={homeState.background || ''} onChange={e => setHomeState({...homeState, background: e.target.value})} className={inputStyle} />
+                                                <p className="text-xs text-gray-500 mt-1">Upload an image to a service like Imgur and paste the direct link here.</p>
                                             </div>
                                             {homeState.background && <img src={homeState.background} alt="Preview" className="mt-4 rounded-lg max-h-48"/>}
                                         </div>
@@ -382,21 +374,35 @@ export const Admin: React.FC = () => {
                                     </div>
                                 )}
                                 {activeTab === 'settings' && (
-                                    <div>
-                                        <h2 className="font-accent text-3xl font-bold mb-4">Admin Settings</h2>
-                                        <form onSubmit={handlePasswordChange} className="space-y-4 max-w-sm">
-                                            <div>
-                                                <label htmlFor="new-password">New Password</label>
-                                                <input id="new-password" type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} className={inputStyle} />
-                                            </div>
-                                            <div>
-                                                <label htmlFor="confirm-password">Confirm New Password</label>
-                                                <input id="confirm-password" type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} className={inputStyle} />
-                                            </div>
-                                            <div className="flex justify-end">
-                                                <button type="submit" className={buttonStyle}><Save size={18} /> Change Password</button>
-                                            </div>
-                                        </form>
+                                    <div className="space-y-12">
+                                        <div>
+                                            <h2 className="font-accent text-3xl font-bold mb-4">Admin Settings</h2>
+                                            <form onSubmit={handlePasswordChange} className="space-y-4 max-w-sm">
+                                                <div>
+                                                    <label htmlFor="new-password">New Password</label>
+                                                    <input id="new-password" type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} className={inputStyle} />
+                                                </div>
+                                                <div>
+                                                    <label htmlFor="confirm-password">Confirm New Password</label>
+                                                    <input id="confirm-password" type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} className={inputStyle} />
+                                                </div>
+                                                <div className="flex justify-end">
+                                                    <button type="submit" className={buttonStyle}><Save size={18} /> Change Password</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                        <div>
+                                            <h2 className="font-accent text-3xl font-bold mb-4">Global Content Persistence</h2>
+                                            <p className="text-[#A1A1AA] mb-4 text-sm">
+                                                To make your content changes permanent and visible to all visitors, first save any pending changes on other tabs. Then, export the current content and replace the `DEFAULT_SITE_CONTENT` object in the `/data/defaultContent.ts` file with the contents of the downloaded JSON file.
+                                            </p>
+                                            <button
+                                                onClick={handleExportContent}
+                                                className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white font-bold rounded-md hover:bg-blue-700"
+                                            >
+                                                <Download size={16} /> Export Content File
+                                            </button>
+                                        </div>
                                     </div>
                                 )}
                             </motion.div>
