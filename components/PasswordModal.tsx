@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -23,10 +22,10 @@ export const PasswordModal: React.FC<PasswordModalProps> = ({ isOpen, onClose })
     }
   }, [isOpen]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    if (auth.login(password)) {
+    if (await auth.login(password)) {
       onClose();
       navigate('/admin');
     } else {

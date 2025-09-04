@@ -42,15 +42,15 @@ export const Admin: React.FC = () => {
         setTimeout(() => setStatusMessage(''), 3000);
     };
 
-    const handleSave = (section: keyof SiteContent, data: any) => {
-        updateContent({ ...content, [section]: data });
+    const handleSave = async (section: keyof SiteContent, data: any) => {
+        await updateContent({ ...content, [section]: data });
         showStatusMessage(`${section.charAt(0).toUpperCase() + section.slice(1)} content updated successfully!`);
     };
     
-    const handlePasswordChange = (e: React.FormEvent) => {
+    const handlePasswordChange = async (e: React.FormEvent) => {
         e.preventDefault();
         if(newPassword && newPassword === confirmPassword) {
-            changePassword(newPassword);
+            await changePassword(newPassword);
             showStatusMessage('Password updated successfully!');
             setNewPassword('');
             setConfirmPassword('');
@@ -65,12 +65,12 @@ export const Admin: React.FC = () => {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'siteContent.json';
+        a.download = 'siteContent_backup.json';
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
-        showStatusMessage('Content exported as siteContent.json!');
+        showStatusMessage('Content exported as siteContent_backup.json!');
     };
 
     const handleLogout = () => {
@@ -385,13 +385,16 @@ export const Admin: React.FC = () => {
                                         <div>
                                             <h2 className="font-accent text-3xl font-bold mb-4">Global Content Persistence</h2>
                                             <p className="text-[#A1A1AA] mb-4 text-sm">
-                                                To make your content changes permanent and visible to all visitors, first save any pending changes on other tabs. Then, export the current content and replace the `DEFAULT_SITE_CONTENT` object in the `/data/defaultContent.ts` file with the contents of the downloaded JSON file.
+                                                All content changes are now saved automatically and are visible across all devices. The data is stored securely in the cloud. You no longer need to manually export and update content files.
+                                            </p>
+                                            <p className="text-[#A1A1AA] mb-4 text-sm">
+                                                You can still export your content as a JSON file for backup purposes.
                                             </p>
                                             <button
                                                 onClick={handleExportContent}
                                                 className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white font-bold rounded-md hover:bg-blue-700"
                                             >
-                                                <Download size={16} /> Export Content File
+                                                <Download size={16} /> Export Backup File
                                             </button>
                                         </div>
                                     </div>

@@ -1,31 +1,62 @@
 import React, { createContext, useState, useContext, ReactNode } from 'react';
 
+// The platform provides a 'frame' object on the window for global persistence
+
 interface AuthContextType {
   isAuthenticated: boolean;
-  login: (password: string) => boolean;
+  login: (password: string) => Promise<boolean>;
   logout: () => void;
-  changePassword: (newPassword: string) => void;
+  changePassword: (newPassword: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Helper to wait for the frame API to be ready
+const getFrame = (): Promise<any> => {
+    return new Promise((resolve, reject) => {
+        let attempts = 0;
+        const checkFrame = () => {
+            if ((window as any).frame) {
+                resolve((window as any).frame);
+            } else if (attempts < 50) { // Timeout after ~2.5 seconds
+                attempts++;
+                setTimeout(checkFrame, 50);
+            } else {
+                reject(new Error("Frame API not available after multiple attempts."));
+            }
+        };
+        checkFrame();
+    });
+};
+
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  const getPassword = () => {
-    return localStorage.getItem('adminPassword') || 'admin';
+  const getPassword = async () => {
+    try {
+      const frame = await getFrame();
+      return (await frame.storage.get('adminPassword')) || 'admin';
+    } catch (error) {
+      console.error("Failed to get password from global storage:", error);
+      return 'admin'; // fallback to default
+    }
   };
 
-  const login = (password: string) => {
-    if (password === getPassword()) {
+  const login = async (password: string) => {
+    if (password === await getPassword()) {
       setIsAuthenticated(true);
       return true;
     }
     return false;
   };
   
-  const changePassword = (newPassword: string) => {
-      localStorage.setItem('adminPassword', newPassword);
+  const changePassword = async (newPassword: string) => {
+      try {
+        const frame = await getFrame();
+        await frame.storage.set('adminPassword', newPassword);
+      } catch (error) {
+        console.error("Failed to set password in global storage:", error);
+      }
   };
 
   const logout = () => {
