@@ -49,7 +49,6 @@ export interface Writing {
 export interface HomePageContent {
   tagline: string;
   description: string;
-  background: string | null;
 }
 
 export interface AboutPageContent {

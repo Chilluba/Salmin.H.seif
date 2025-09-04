@@ -21,10 +21,11 @@ const itemVariants: Variants = {
 };
 
 const CHARACTER_IMAGE_URL = "https://i.imgur.com/gBwva9K.png";
+const HOME_BACKGROUND_URL = "https://i.imgur.com/4qNSOOt.jpeg";
 
 export const Home: React.FC = () => {
   const { content } = useContent();
-  const { tagline, description, background } = content.home;
+  const { tagline, description } = content.home;
   const characterImageRef = useRef<HTMLImageElement>(null);
 
   useEffect(() => {
@@ -54,7 +55,7 @@ export const Home: React.FC = () => {
     <div className="relative w-screen h-screen -ml-4 sm:-ml-6 lg:-ml-8 -mt-24 md:-mt-32 flex items-center justify-center overflow-hidden box-border pt-24 md:pt-32">
         <div 
             className="absolute inset-0 z-0 bg-cover bg-center transition-all duration-500"
-            style={{ backgroundImage: `url('${background}')` }}
+            style={{ backgroundImage: `url('${HOME_BACKGROUND_URL}')` }}
         >
             <div className="absolute inset-0 bg-black/40"></div>
         </div>

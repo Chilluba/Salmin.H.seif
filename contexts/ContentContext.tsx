@@ -18,8 +18,12 @@ export const ContentProvider: React.FC<{ children: ReactNode }> = ({ children })
     try {
       const storedContent = localStorage.getItem('siteContent');
       if (storedContent) {
-        // A simple merge to ensure new properties from updates are included
         const parsedContent = JSON.parse(storedContent);
+        // Handle legacy background property for smooth upgrade.
+        if (parsedContent.home && parsedContent.home.background) {
+          delete parsedContent.home.background;
+        }
+        // A simple merge to ensure new properties from updates are included
         const mergedContent = { ...DEFAULT_SITE_CONTENT, ...parsedContent };
         setContent(mergedContent);
       } else {

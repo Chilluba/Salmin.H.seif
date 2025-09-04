@@ -211,15 +211,6 @@ export const Admin: React.FC = () => {
                                                 </div>
                                             </div>
                                         </div>
-                                         <div>
-                                            <h2 className="font-accent text-3xl font-bold mb-4">Homepage Wallpaper</h2>
-                                            <div>
-                                                <label htmlFor="backgroundUrl" className="block text-sm font-medium text-[#A1A1AA]">Homepage Wallpaper URL</label>
-                                                <input type="url" id="backgroundUrl" placeholder="https://i.imgur.com/your-image.jpg" value={homeState.background || ''} onChange={e => setHomeState({...homeState, background: e.target.value})} className={inputStyle} />
-                                                <p className="text-xs text-gray-500 mt-1">Upload an image to a service like Imgur and paste the direct link here.</p>
-                                            </div>
-                                            {homeState.background && <img src={homeState.background} alt="Preview" className="mt-4 rounded-lg max-h-48"/>}
-                                        </div>
                                         <div className="flex justify-end">
                                             <button onClick={() => handleSave('home', homeState)} className={buttonStyle}><Save size={18} /> Save Home</button>
                                         </div>

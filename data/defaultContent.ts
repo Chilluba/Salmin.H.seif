@@ -5,7 +5,6 @@ export const DEFAULT_SITE_CONTENT: SiteContent = {
   home: {
     tagline: 'Multidisciplinary Creative & Technologist',
     description: 'Blending business, technology, and art. Specializing in 3D design, videography, graphic design, and philosophical storytelling.',
-    background: 'https://i.imgur.com/Y5tM2nb.jpg'
   },
   about: {
     philosophy1: 'My work merges precision, creativity, and critical thinking, shaped by a deep exploration of consciousness, communication, and human understanding. I bring strategic value, adaptability, and innovation to every project and organization I engage with.',
