@@ -9,14 +9,14 @@
             }
         },
         {
-            "src": "server/server.ts",
+            "src": "server/vercel.ts",
             "use": "@vercel/node"
         }
     ],
     "rewrites": [
         {
             "source": "/(background|upload-background|remove-background|login|admin-data|uploads/.*)",
-            "destination": "/server/server.ts"
+            "destination": "/server/vercel.ts"
         }
     ]
 }

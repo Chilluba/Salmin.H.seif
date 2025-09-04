@@ -4,6 +4,7 @@ import multer from 'multer';
 import bodyParser from 'body-parser';
 import path from 'path';
 import fs from 'fs';
+import os from 'os';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -16,15 +17,39 @@ const port = process.env.PORT || 3001;
 app.use(cors());
 app.use(bodyParser.json());
 
-// Serve static files from the 'dist' directory
-app.use(express.static(path.join(__dirname, '..', 'dist')));
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// Resolve client build directory robustly regardless of runtime location
+const candidateDistDirs = [
+  // When running compiled code from server/dist
+  path.resolve(__dirname, '..', '..', 'dist'),
+  // Fallback to repo root from process cwd
+  path.resolve(process.cwd(), 'dist'),
+];
+
+const clientDistDir = candidateDistDirs.find((dirPath) => {
+  try {
+    const indexPath = path.join(dirPath, 'index.html');
+    return fs.existsSync(dirPath) && fs.existsSync(indexPath);
+  } catch {
+    return false;
+  }
+}) || candidateDistDirs[0];
+
+// Serve static files from the built client app
+app.use(express.static(clientDistDir));
 
 // Storage for uploaded background image
-const UPLOADS_DIR = path.join(__dirname, 'uploads');
+const defaultUploadsDir = process.env.UPLOADS_DIR
+  ? path.resolve(process.env.UPLOADS_DIR)
+  : (process.env.VERCEL
+      ? path.join(os.tmpdir(), 'uploads')
+      : path.join(__dirname, 'uploads'));
+const UPLOADS_DIR = defaultUploadsDir;
 if (!fs.existsSync(UPLOADS_DIR)) {
   fs.mkdirSync(UPLOADS_DIR);
 }
+
+// Expose uploads directory after ensuring it exists
+app.use('/uploads', express.static(UPLOADS_DIR));
 
 let backgroundImage = 'default-background.jpg'; // A default image can be placed in uploads
 
@@ -103,10 +128,20 @@ app.get('/admin-data', isAuthenticated, (req, res) => {
     res.json({ data: 'Some secret admin data' });
 });
 
+// Healthcheck for platforms
+app.get('/health', (_req, res) => res.status(200).send('OK'));
+
 // Catch-all route to serve index.html
 app.get(/.*/, (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'dist', 'index.html'));
+  res.sendFile(path.join(clientDistDir, 'index.html'));
 });
 
 
 export default app;
+
+// Start server when not running in serverless environment
+if (!process.env.VERCEL) {
+  app.listen(port, () => {
+    console.log(`Server listening on http://localhost:${port}`);
+  });
+}
