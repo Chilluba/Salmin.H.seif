@@ -1,21 +1,22 @@
-
 import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { PROJECTS } from '../constants';
 import { ProjectCard } from '../components/ProjectCard';
 import { ProjectCategory } from '../types';
+import { useContent } from '../contexts/ContentContext';
 
 const allCategories = [ProjectCategory.ThreeD, ProjectCategory.Design, ProjectCategory.Video];
 
 export const Portfolio: React.FC = () => {
   const [activeFilter, setActiveFilter] = useState<ProjectCategory | 'All'>('All');
+  const { content } = useContent();
+  const projects = content.portfolio;
 
   const filteredProjects = useMemo(() => {
     if (activeFilter === 'All') {
-      return PROJECTS;
+      return projects;
     }
-    return PROJECTS.filter(p => p.category === activeFilter);
-  }, [activeFilter]);
+    return projects.filter(p => p.category === activeFilter);
+  }, [activeFilter, projects]);
 
   return (
     <motion.div

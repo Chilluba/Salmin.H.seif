@@ -22,7 +22,7 @@ export interface Project {
 }
 
 export interface Skill {
-  name: string;
+  name:string;
   level: number; // 0-100
 }
 
@@ -42,4 +42,33 @@ export interface Writing {
   title: string;
   tagline: string;
   content: WritingContent[];
+}
+
+// --- New Content Management Types ---
+
+export interface HomePageContent {
+  tagline: string;
+  description: string;
+  background: string | null;
+}
+
+export interface AboutPageContent {
+  philosophy1: string;
+  philosophy2: string;
+  skills: Skill[];
+  timeline: TimelineEvent[];
+}
+
+export interface ContactPageContent {
+  email: string;
+  phone: string;
+  location: string;
+}
+
+export interface SiteContent {
+  home: HomePageContent;
+  about: AboutPageContent;
+  portfolio: Project[];
+  writings: Writing[];
+  contact: ContactPageContent;
 }

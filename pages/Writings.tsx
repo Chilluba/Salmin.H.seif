@@ -1,23 +1,20 @@
-
 import React from 'react';
-// FIX: Added the `Variants` type from framer-motion to resolve type errors.
 import { motion, useScroll, useSpring, Variants } from 'framer-motion';
-import { WRITINGS } from '../data/writings';
+import { useContent } from '../contexts/ContentContext';
 
-// FIX: Explicitly typed with `Variants` to ensure type compatibility with framer-motion.
 const headingVariants: Variants = {
   hidden: { opacity: 0, y: -20 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' } },
 };
 
-// FIX: Explicitly typed with `Variants` to ensure type compatibility with framer-motion.
 const textBlockVariants: Variants = {
   hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: 'easeOut' } },
 };
 
 export const Writings: React.FC = () => {
-  const essay = WRITINGS[0]; // For now, we're just displaying the first essay
+  const { content } = useContent();
+  const essay = content.writings[0];
 
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, {
@@ -25,6 +22,15 @@ export const Writings: React.FC = () => {
     damping: 30,
     restDelta: 0.001,
   });
+
+  if (!essay) {
+    return (
+      <div className="text-center">
+        <h1 className="font-display text-5xl">No Writings Found</h1>
+        <p className="text-lg text-[#A1A1AA]">Add an article from the admin panel.</p>
+      </div>
+    );
+  }
 
   return (
     <>

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Send, Mail, Phone, MapPin } from 'lucide-react';
+import { useContent } from '../contexts/ContentContext';
 
 export const Contact: React.FC = () => {
   const [name, setName] = useState('');
@@ -8,10 +9,12 @@ export const Contact: React.FC = () => {
   const [message, setMessage] = useState('');
   const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
 
+  const { content } = useContent();
+  const contactInfo = content.contact;
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setStatus('sending');
-    // Mock form submission
     setTimeout(() => {
       if (name && email && message) {
         setStatus('success');
@@ -48,15 +51,15 @@ export const Contact: React.FC = () => {
             <div className="space-y-4 text-[#A1A1AA]">
                 <div className="flex items-center gap-4">
                     <Mail size={20} className="text-[#E50914]" />
-                    <a href="mailto:salminhabibu2000@gmail.com" className="hover:text-white">salminhabibu2000@gmail.com</a>
+                    <a href={`mailto:${contactInfo.email}`} className="hover:text-white">{contactInfo.email}</a>
                 </div>
                 <div className="flex items-center gap-4">
                     <Phone size={20} className="text-[#E50914]" />
-                    <a href="tel:+255692156182" className="hover:text-white">+255 692 156 182</a>
+                    <a href={`tel:${contactInfo.phone}`} className="hover:text-white">{contactInfo.phone}</a>
                 </div>
                 <div className="flex items-center gap-4">
                     <MapPin size={20} className="text-[#E50914]" />
-                    <span>Dar es Salaam, Tanzania</span>
+                    <span>{contactInfo.location}</span>
                 </div>
             </div>
             <p className="mt-6 text-sm text-[#A1A1AA]">
@@ -77,7 +80,7 @@ export const Contact: React.FC = () => {
             </div>
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-[#A1A1AA]">Email</label>
-              <input type="email" id="email" value={email} onChange={e => setEmail(e.target.value)} required className="mt-1 block w-full bg-[#121317] border border-[#27272A] rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-[#E50914] focus:border-[#E50914]" />
+              <input type="email" id="email" value={email} onChange={e => setEmail(e.target.value)} required className="mt-1 block w-full bg-[#121317] border border-[#2727A] rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-[#E50914] focus:border-[#E50914]" />
             </div>
             <div>
               <label htmlFor="message" className="block text-sm font-medium text-[#A1A1AA]">Message</label>

@@ -1,0 +1,83 @@
+import { SiteContent, ProjectCategory, Writing } from '../types';
+import { THE_NATURE_OF_THE_SELF } from './defaultWritings';
+
+export const DEFAULT_SITE_CONTENT: SiteContent = {
+  home: {
+    tagline: 'Multidisciplinary Creative & Technologist',
+    description: 'Blending business, technology, and art. Specializing in 3D design, videography, graphic design, and philosophical storytelling.',
+    background: 'https://i.imgur.com/Y5tM2nb.jpg'
+  },
+  about: {
+    philosophy1: 'My work merges precision, creativity, and critical thinking, shaped by a deep exploration of consciousness, communication, and human understanding. I bring strategic value, adaptability, and innovation to every project and organization I engage with.',
+    philosophy2: 'I independently specialize in 3D design, videography, graphic design, coding, and philosophical storytelling, aiming to create work that is not only aesthetically pleasing but also communicates a clear and compelling message.',
+    skills: [
+        { name: '3D Artistry (Blender, C4D)', level: 95 },
+        { name: 'Graphic Design & Branding', level: 90 },
+        { name: 'Videography & Editing', level: 92 },
+        { name: 'Photography & Color Grading', level: 88 },
+        { name: 'Python (Automation, AI, Backend)', level: 85 },
+        { name: 'JavaScript (React, Node.js)', level: 80 },
+        { name: 'Previsualization & Storyboarding', level: 90 },
+        { name: 'Creative & Script Writing', level: 85 },
+        { name: 'Customer Service & Communication', level: 98 },
+    ],
+    timeline: [
+        { year: '2019', title: 'Start of Formal Education', description: 'Began journey at Mwalimu Nyerere Memorial Academy with a Certificate in Business Administration.' },
+        { year: '2020', title: 'Professional Beginnings & Diploma', description: 'Started working as a Receptionist at FNE Crown Investment while pursuing a Diploma in Business Administration.' },
+        { year: '2022', title: 'Expanding Creative Horizons', description: 'Graduated and ventured deeper into freelance creative work, including roles at Bixcom and Singularity Microfinance.' },
+        { year: '2024', title: 'Azam Media Group & Creative Technologist', description: 'Joined Azam Media Group as a Customer Service Agent while continuing independent creative projects in 3D, coding, and storytelling.' },
+    ],
+  },
+  portfolio: [
+    {
+      id: 1,
+      title: 'Philosophical Video Series',
+      category: ProjectCategory.Video,
+      description: 'Producing a philosophical video series exploring consciousness and human perception, from scriptwriting to final edit.',
+      imageUrl: 'https://picsum.photos/seed/project1/600/400',
+      tags: ['DaVinci Resolve', 'After Effects', 'Scriptwriting'],
+      liveUrl: '#',
+    },
+    {
+      id: 2,
+      title: 'AI-Powered Creative Tools',
+      category: ProjectCategory.Design, // Using Design as a proxy for coding projects
+      description: 'Developing Python-based automation tools and AI-powered creative systems to enhance artistic workflows.',
+      imageUrl: 'https://picsum.photos/seed/project2/600/400',
+      tags: ['Python', 'AI Agents', 'React', 'Node.js'],
+      sourceUrl: '#',
+    },
+    {
+      id: 3,
+      title: 'Architectural Previsualization',
+      category: ProjectCategory.ThreeD,
+      description: 'Designing 3D environments and animated scenes for storytelling and previsualization of architectural concepts.',
+      imageUrl: 'https://picsum.photos/seed/project3/600/400',
+      tags: ['Blender', 'Cinema 4D', 'Marvelous Designer'],
+    },
+    {
+      id: 5,
+      title: 'Corporate Branding Package',
+      category: ProjectCategory.Design,
+      description: 'Complete branding identity for a tech startup, including logo, brand guidelines, and marketing materials.',
+      imageUrl: 'https://picsum.photos/seed/project5/600/400',
+      tags: ['Adobe Illustrator', 'Adobe Photoshop'],
+      liveUrl: '#',
+    },
+    {
+      id: 6,
+      title: 'Kinetic Typography for Azam TV',
+      category: ProjectCategory.Video,
+      description: 'A dynamic motion graphics piece for a promotional campaign, blending typography and visual effects.',
+      imageUrl: 'https://picsum.photos/seed/project6/600/400',
+      tags: ['After Effects', 'Premiere Pro'],
+      liveUrl: '#',
+    },
+  ],
+  writings: [THE_NATURE_OF_THE_SELF],
+  contact: {
+    email: 'salminhabibu2000@gmail.com',
+    phone: '+255 692 156 182',
+    location: 'Dar es Salaam, Tanzania',
+  },
+};
