@@ -42,12 +42,21 @@ export const SimpleBackground: React.FC<SimpleBackgroundProps> = ({
   useEffect(() => {
     if (backgroundImage && imgRef.current) {
       const img = imgRef.current;
-      img.crossOrigin = "Anonymous";
+      // When using same-origin relative URLs, crossOrigin should be omitted
+      img.removeAttribute('crossorigin');
       img.src = backgroundImage;
       img.onload = () => {
-        const colorThief = new ColorThief();
-        const color = colorThief.getColor(img);
-        setDominantColor(`rgba(${color[0]}, ${color[1]}, ${color[2]}, 0.4)`);
+        try {
+          const colorThief = new ColorThief();
+          const color = colorThief.getColor(img);
+          setDominantColor(`rgba(${color[0]}, ${color[1]}, ${color[2]}, 0.4)`);
+        } catch (e) {
+          // If canvas is tainted or ColorThief fails, fall back gracefully
+          setDominantColor('rgba(0,0,0,0.4)');
+        }
+      };
+      img.onerror = () => {
+        setBackgroundImage(null);
       };
     }
   }, [backgroundImage]);
