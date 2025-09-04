@@ -20,7 +20,7 @@ const itemVariants: Variants = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: 'easeOut' } },
 };
 
-const CHARACTER_IMAGE_URL = "https://i.imgur.com/4qNSOOt.jpeg";
+const CHARACTER_IMAGE_URL = "";
 
 export const Home: React.FC = () => {
   const { content } = useContent();
