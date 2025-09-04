@@ -23,6 +23,9 @@ export const SimpleBackground: React.FC<SimpleBackgroundProps> = ({
 
     window.addEventListener('background-updated', handleBackgroundUpdate);
     
+    // Sync background on mount
+    BackgroundService.syncBackground();
+    
     return () => {
       window.removeEventListener('background-updated', handleBackgroundUpdate);
     };

@@ -45,10 +45,10 @@ export const Home: React.FC = () => {
         {/* Simple Background */}
         <SimpleBackground />
         
-        {/* Admin Access Button */}
+        {/* Admin Access Button - Only show on desktop */}
         <button
           onClick={() => setIsAdminOpen(true)}
-          className="absolute top-4 right-4 z-20 p-2 bg-black/50 text-white rounded-full hover:bg-black/70 transition-colors backdrop-blur-sm"
+          className="absolute top-4 right-4 z-20 p-2 bg-black/50 text-white rounded-full hover:bg-black/70 transition-colors backdrop-blur-sm hidden md:block"
           title="Admin Dashboard"
         >
           <Settings size={20} />
@@ -96,14 +96,14 @@ export const Home: React.FC = () => {
                 </div>
             </motion.div>
 
-            {/* Right Side: Character Image */}
+            {/* Right Side: Character Image - Removed to fix imgur error */}
             <motion.div 
                 className="md:col-span-2 hidden md:flex justify-center items-end h-full"
                 initial={{ opacity: 0, x: 100 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 1, delay: 0.5, ease: 'easeOut' }}
             >
-                <img src="https://i.imgur.com/gBwva9K.png" alt="Salmin Habibu Seif as a comic character" className="max-h-[90vh] object-contain drop-shadow-[0_10px_15px_rgba(0,0,0,0.7)]" />
+                {/* Character image removed to prevent imgur error */}
             </motion.div>
         </div>
         
