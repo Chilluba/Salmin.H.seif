@@ -41,10 +41,7 @@ export const Home: React.FC = () => {
   }, []);
 
   return (
-    <div className="relative w-screen h-screen -ml-4 sm:-ml-6 lg:-ml-8 -mt-8 md:-mt-16 flex items-center justify-center overflow-hidden">
-        {/* Simple Background */}
-        <SimpleBackground />
-        
+    <div>
         {/* Admin Access Button - Only show on desktop */}
         <button
           onClick={() => setIsAdminOpen(true)}
