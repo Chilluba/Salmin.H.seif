@@ -40,7 +40,7 @@ export const DEFAULT_SITE_CONTENT: SiteContent = {
     {
       id: 2,
       title: 'AI-Powered Creative Tools',
-      category: ProjectCategory.Design, // Using Design as a proxy for coding projects
+      category: ProjectCategory.Apps,
       description: 'Developing Python-based automation tools and AI-powered creative systems to enhance artistic workflows.',
       imageUrl: 'https://picsum.photos/seed/project2/600/400',
       tags: ['Python', 'AI Agents', 'React', 'Node.js'],
@@ -53,6 +53,16 @@ export const DEFAULT_SITE_CONTENT: SiteContent = {
       description: 'Designing 3D environments and animated scenes for storytelling and previsualization of architectural concepts.',
       imageUrl: 'https://picsum.photos/seed/project3/600/400',
       tags: ['Blender', 'Cinema 4D', 'Marvelous Designer'],
+    },
+    {
+      id: 4,
+      title: 'Interactive Web Game',
+      category: ProjectCategory.Games,
+      description: 'A browser-based interactive game built with modern web technologies to showcase storytelling and development skills.',
+      imageUrl: 'https://picsum.photos/seed/project4/600/400',
+      tags: ['React', 'TypeScript', 'Framer Motion'],
+      liveUrl: '#',
+      sourceUrl: '#',
     },
     {
       id: 5,

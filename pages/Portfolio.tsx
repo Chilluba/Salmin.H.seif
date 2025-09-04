@@ -4,7 +4,7 @@ import { ProjectCard } from '../components/ProjectCard';
 import { ProjectCategory } from '../types';
 import { useContent } from '../contexts/ContentContext';
 
-const allCategories = [ProjectCategory.ThreeD, ProjectCategory.Design, ProjectCategory.Video];
+const allCategories = Object.values(ProjectCategory);
 
 export const Portfolio: React.FC = () => {
   const [activeFilter, setActiveFilter] = useState<ProjectCategory | 'All'>('All');

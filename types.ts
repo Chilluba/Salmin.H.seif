@@ -8,6 +8,9 @@ export enum ProjectCategory {
   ThreeD = "3D Modeling",
   Design = "Graphic Design",
   Video = "Videography",
+  Websites = "Websites",
+  Apps = "Apps",
+  Games = "Games",
 }
 
 export interface Project {
