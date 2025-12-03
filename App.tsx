@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { HashRouter, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
@@ -11,6 +12,7 @@ import { Contact } from './pages/Contact';
 import { Admin } from './pages/Admin';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ContentProvider, useContent } from './contexts/ContentContext';
+import { ProjectDetail } from './pages/ProjectDetail';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const auth = useAuth();
@@ -34,6 +36,7 @@ const AppRoutes: React.FC = () => {
                 <Route path="/" element={<Home />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/portfolio" element={<Portfolio />} />
+                <Route path="/portfolio/:projectId" element={<ProjectDetail />} />
                 <Route path="/writings" element={<Writings />} />
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/admin" element={
@@ -53,7 +56,7 @@ const App: React.FC = () => {
         <ContentProvider>
           <div className="bg-[#0B0B0C] text-[#F5F7FA] min-h-screen flex flex-col font-body">
             <Header />
-            <main className="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24 md:pt-32">
+            <main className="flex-grow relative">
               <AppRoutes />
             </main>
             <Footer />

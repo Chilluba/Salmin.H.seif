@@ -13,6 +13,11 @@ export enum ProjectCategory {
   Games = "Games",
 }
 
+export interface ProjectDetailContent {
+  type: 'image' | 'heading' | 'paragraph';
+  content: string; // URL for image, text for heading/paragraph
+}
+
 export interface Project {
   id: number;
   title: string;
@@ -22,6 +27,7 @@ export interface Project {
   tags: string[];
   liveUrl?: string;
   sourceUrl?: string;
+  detailContent?: ProjectDetailContent[];
 }
 
 export interface Skill {
