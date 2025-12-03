@@ -1,7 +1,7 @@
 
 import React, { useRef, useState, useMemo, Suspense } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { Html, OrbitControls, Float, useTexture, Octahedron, Box, Torus, Line, Stars, Sparkles } from '@react-three/drei';
+import { Html, OrbitControls, Float, useTexture, Octahedron, Box, Torus, Line, Stars, Sparkles, Trail, Environment } from '@react-three/drei';
 import * as THREE from 'three';
 import { useNavigate } from 'react-router-dom';
 import { Project } from '../types';
@@ -58,6 +58,75 @@ const generateNeuralPositions = (count: number, radius: number): NodePosition[] 
 };
 
 // --- Components ---
+
+const ShootingStar = () => {
+    const ref = useRef<THREE.Mesh>(null);
+    const [isActive, setIsActive] = useState(false);
+    const [startPos] = useState(() => new THREE.Vector3());
+    const [endPos] = useState(() => new THREE.Vector3());
+    const nextSpawn = useRef(3); // Start first one quickly (3s)
+    
+    useFrame((state, delta) => {
+        const time = state.clock.getElapsedTime();
+        
+        // Spawn logic
+        if (!isActive && time > nextSpawn.current) {
+            // Calculate random start/end on a large sphere
+            const r = 70;
+            const theta = Math.random() * Math.PI * 2;
+            const phi = Math.acos(2 * Math.random() - 1);
+            
+            startPos.setFromSphericalCoords(r, phi, theta);
+            // End position: somewhat opposite hemisphere to ensure it crosses the view
+            endPos.setFromSphericalCoords(r, phi + Math.PI + (Math.random() - 0.5), theta + Math.PI + (Math.random() - 0.5));
+            
+            setIsActive(true);
+            if (ref.current) {
+                ref.current.position.copy(startPos);
+                ref.current.scale.set(1,1,1);
+            }
+            
+            // Schedule next spawn (30s +/- 5s)
+            nextSpawn.current = time + 30 + (Math.random() * 10 - 5);
+        }
+
+        if (isActive && ref.current) {
+            const dir = new THREE.Vector3().subVectors(endPos, startPos).normalize();
+            const distTotal = startPos.distanceTo(endPos);
+            const distCurrent = ref.current.position.distanceTo(startPos);
+            
+            // Movement Speed
+            const moveSpeed = 40 * delta;
+            ref.current.position.add(dir.multiplyScalar(moveSpeed));
+            
+            // Rotation
+            ref.current.rotation.x += delta * 4;
+            ref.current.rotation.y += delta * 2;
+
+            // Check if finished
+            if (distCurrent >= distTotal) {
+                setIsActive(false);
+                ref.current.scale.set(0,0,0); // Hide
+            }
+        }
+    });
+
+    return (
+        <group>
+            <Trail 
+                width={isActive ? 6 : 0} 
+                length={12} 
+                color={new THREE.Color("#00f3ff")} 
+                attenuation={(t) => t * t}
+            >
+                <mesh ref={ref} scale={[0,0,0]}>
+                    <dodecahedronGeometry args={[0.4, 0]} />
+                    <meshStandardMaterial color="#ffffff" emissive="#00f3ff" emissiveIntensity={2} toneMapped={false} />
+                </mesh>
+            </Trail>
+        </group>
+    );
+};
 
 const DataCrystal = ({ 
   project, 
@@ -251,7 +320,13 @@ export const PortfolioScene: React.FC<PortfolioSceneProps> = ({ projects }) => {
   return (
     <div className="w-full h-full absolute inset-0 bg-[#050505] radial-gradient(circle at center, #1a1a1a 0%, #000000 100%)">
       <Canvas dpr={[1, 2]} camera={{ position: [0, 0, 24], fov: 45 }}>
+        {/* Important: Set background for transmission shaders to work correctly */}
+        <color attach="background" args={['#050505']} />
+        
         <Suspense fallback={<LoadingFallback />}>
+            {/* Environment map is required for MeshPhysicalMaterial/glass reflections */}
+            <Environment preset="city" />
+
             {/* Camera Controls */}
             <OrbitControls 
                 enablePan={false}
@@ -272,6 +347,9 @@ export const PortfolioScene: React.FC<PortfolioSceneProps> = ({ projects }) => {
             {/* Environment Particles */}
             <Stars radius={100} depth={50} count={5000} factor={4} saturation={1} fade speed={0.5} />
             <Sparkles count={100} scale={20} size={4} speed={0.4} opacity={0.5} color="#ffffff" />
+            
+            {/* Background Animations */}
+            <ShootingStar />
 
             {/* The Neural Web */}
             <group>
