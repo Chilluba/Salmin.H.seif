@@ -1,9 +1,10 @@
-
 import React from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import * as ReactRouterDOM from 'react-router-dom';
 import { useContent } from '../contexts/ContentContext';
 import { motion, Variants } from 'framer-motion';
 import { ArrowLeft, ExternalLink, Github } from 'lucide-react';
+
+const { useParams, Link, useNavigate } = ReactRouterDOM;
 
 export const ProjectDetail: React.FC = () => {
     const { projectId } = useParams<{ projectId: string }>();

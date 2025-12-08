@@ -1,10 +1,11 @@
-
 import React, { useRef, useState, useMemo, Suspense } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { Html, OrbitControls, Float, useTexture, Octahedron, Box, Torus, Line, Stars, Sparkles, Trail, Environment } from '@react-three/drei';
+import { Html, OrbitControls, Float, Octahedron, Box, Torus, Line, Stars, Sparkles, Trail, Environment, Billboard, Image } from '@react-three/drei';
 import * as THREE from 'three';
-import { useNavigate } from 'react-router-dom';
+import * as ReactRouterDOM from 'react-router-dom';
 import { Project } from '../types';
+
+const { useNavigate } = ReactRouterDOM;
 
 // --- Types ---
 
@@ -144,11 +145,11 @@ const DataCrystal = ({
   const navigate = useNavigate();
   const groupRef = useRef<THREE.Group>(null);
   const crystalRef = useRef<THREE.Mesh>(null);
-  const ringRef = useRef<THREE.Mesh>(null);
+  const ringRef = useRef<THREE.Group>(null);
   const [hovered, setHovered] = useState(false);
   
-  // Load texture if available, safe fallback
-  const texture = useTexture(project.imageUrl || "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=");
+  // Safe fallback for image
+  const textureUrl = project.imageUrl || "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
   
   useFrame((state) => {
     if (!groupRef.current || !crystalRef.current || !ringRef.current) return;
@@ -168,7 +169,7 @@ const DataCrystal = ({
     ringRef.current.rotation.y += 0.015;
 
     // Scale logic
-    const targetScale = hovered ? 1.3 : (isNeighbor ? 1.1 : 1.0);
+    const targetScale = hovered ? 1.2 : (isNeighbor ? 1.1 : 1.0);
     groupRef.current.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), 0.1);
   });
 
@@ -190,39 +191,77 @@ const DataCrystal = ({
                 onHover(false);
             }}
         >
-          {/* Outer Glass Crystal (Octahedron) */}
-          <Octahedron ref={crystalRef} args={[1.2, 0]}>
-             <meshPhysicalMaterial 
-                color={hovered ? "#ffffff" : color}
-                transmission={0.6} // Glass-like
-                opacity={1}
-                metalness={0.2}
-                roughness={0}
-                thickness={2} // Refraction
-                clearcoat={1}
-                envMapIntensity={2}
-             />
-          </Octahedron>
+          {/* 1. The Core Device (Crystal Base) */}
+          <group>
+              {/* Outer Glass Shell */}
+              <Octahedron ref={crystalRef} args={[1, 0]}>
+                 <meshPhysicalMaterial 
+                    color={hovered ? "#ffffff" : color}
+                    transmission={0.6}
+                    opacity={1}
+                    metalness={0.2}
+                    roughness={0}
+                    thickness={2}
+                    clearcoat={1}
+                    envMapIntensity={2}
+                 />
+              </Octahedron>
 
-          {/* Inner Core (Textured Box) */}
-          <Box args={[0.8, 0.8, 0.8]}>
-            <meshBasicMaterial map={texture} toneMapped={false} />
-          </Box>
-          
-          {/* Inner Wireframe for Tech Feel */}
-          <Box args={[0.85, 0.85, 0.85]}>
-             <meshBasicMaterial color={color} wireframe transparent opacity={0.5} />
-          </Box>
-
-          {/* Orbiting Energy Ring */}
-          <group ref={ringRef}>
-             <Torus args={[1.8, 0.02, 16, 100]}>
-                <meshBasicMaterial color={color} toneMapped={false} />
-             </Torus>
+              {/* Inner Power Core */}
+              <Octahedron args={[0.5, 0]}>
+                <meshBasicMaterial color={color} wireframe />
+              </Octahedron>
+              
+              {/* Orbiting Energy Ring */}
+              <group ref={ringRef}>
+                 <Torus args={[1.5, 0.03, 16, 100]}>
+                    <meshBasicMaterial color={color} toneMapped={false} />
+                 </Torus>
+              </group>
           </group>
 
+          {/* 2. Connection Beam (Holographic projection stream) */}
+           <mesh position={[0, 1.2, 0]}>
+             <cylinderGeometry args={[0.04, 0.1, 1.8, 8]} />
+             <meshBasicMaterial color={color} transparent opacity={0.3} depthWrite={false} blending={THREE.AdditiveBlending} />
+          </mesh>
+
+          {/* 3. Holographic Display Screen (Billboard) */}
+          {/* Billboard ensures the screen always faces the camera for visibility */}
+          <Billboard position={[0, 2.2, 0]}>
+             {/* The Image - 16:9 Aspect Ratio */}
+             <Image 
+                url={textureUrl}
+                scale={[3, 1.69]} 
+                transparent
+                opacity={hovered ? 1 : 0.85}
+                toneMapped={false}
+             />
+             
+             {/* Tech Frame Background */}
+             <mesh position={[0, 0, -0.01]}>
+                <planeGeometry args={[3.2, 1.9]} />
+                <meshBasicMaterial color="#000000" transparent opacity={0.7} />
+             </mesh>
+             
+             {/* Wireframe Outline */}
+             <mesh position={[0, 0, 0.02]}>
+                <planeGeometry args={[3.1, 1.8]} />
+                <meshBasicMaterial color={color} wireframe transparent opacity={0.6} />
+             </mesh>
+
+             {/* Corner Accents for Sci-Fi look */}
+             <group position={[0, 0, 0.03]}>
+                <Box args={[0.2, 0.05, 0.05]} position={[-1.55, 0.9, 0]}><meshBasicMaterial color={color}/></Box>
+                <Box args={[0.05, 0.2, 0.05]} position={[-1.55, 0.9, 0]}><meshBasicMaterial color={color}/></Box>
+                
+                <Box args={[0.2, 0.05, 0.05]} position={[1.55, -0.9, 0]}><meshBasicMaterial color={color}/></Box>
+                <Box args={[0.05, 0.2, 0.05]} position={[1.55, -0.9, 0]}><meshBasicMaterial color={color}/></Box>
+             </group>
+          </Billboard>
+
           {/* Label UI */}
-          <Html position={[0, -2.2, 0]} center distanceFactor={12} style={{ pointerEvents: 'none' }}>
+          <Html position={[0, -1.8, 0]} center distanceFactor={15} style={{ pointerEvents: 'none' }}>
              <div className={`
                 transition-all duration-300 transform
                 ${hovered ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-90 translate-y-2'}

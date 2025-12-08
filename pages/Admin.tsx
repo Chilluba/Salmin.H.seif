@@ -1,11 +1,12 @@
-
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import * as ReactRouterDOM from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { LogOut, Save, Download, Trash2, Home, User, Briefcase, Mail, Edit3, Settings, PlusCircle, X } from 'lucide-react';
 import { useContent } from '../contexts/ContentContext';
 import { SiteContent, Project, Skill, TimelineEvent, ProjectCategory, Writing, WritingContent, ProjectDetailContent } from '../types';
+
+const { useNavigate } = ReactRouterDOM;
 
 type AdminTab = 'home' | 'about' | 'portfolio' | 'writings' | 'contact' | 'settings';
 

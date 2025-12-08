@@ -1,10 +1,11 @@
-
 import React, { useState, useEffect } from 'react';
-import { NavLink as RouterNavLink, useLocation } from 'react-router-dom';
+import * as ReactRouterDOM from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, Settings } from 'lucide-react';
 import { NAV_LINKS } from '../constants';
 import { PasswordModal } from './PasswordModal';
+
+const { NavLink: RouterNavLink, useLocation } = ReactRouterDOM;
 
 export const Header: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);

@@ -1,9 +1,10 @@
-
 import React from 'react';
 import { motion, Variants } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import * as ReactRouterDOM from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { useContent } from '../contexts/ContentContext';
+
+const { Link } = ReactRouterDOM;
 
 const containerVariants: Variants = {
   hidden: { opacity: 0 },

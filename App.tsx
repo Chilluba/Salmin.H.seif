@@ -1,6 +1,5 @@
-
 import React from 'react';
-import { HashRouter, Routes, Route, useLocation, Navigate } from 'react-router-dom';
+import * as ReactRouterDOM from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
@@ -13,6 +12,8 @@ import { Admin } from './pages/Admin';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ContentProvider, useContent } from './contexts/ContentContext';
 import { ProjectDetail } from './pages/ProjectDetail';
+
+const { HashRouter, Routes, Route, useLocation, Navigate } = ReactRouterDOM;
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const auth = useAuth();

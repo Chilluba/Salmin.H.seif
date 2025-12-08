@@ -1,16 +1,15 @@
-
 import React from 'react';
-// FIX: Added the `Variants` type from framer-motion to resolve type errors.
 import { motion, Variants } from 'framer-motion';
 import { ExternalLink, Github } from 'lucide-react';
 import { Project } from '../types';
-import { Link } from 'react-router-dom';
+import * as ReactRouterDOM from 'react-router-dom';
+
+const { Link } = ReactRouterDOM;
 
 interface ProjectCardProps {
   project: Project;
 }
 
-// FIX: Explicitly typed with `Variants` to ensure type compatibility with framer-motion.
 const cardVariants: Variants = {
   initial: { y: 50, opacity: 0 },
   animate: { y: 0, opacity: 1, transition: { type: 'spring', duration: 0.5 } },
