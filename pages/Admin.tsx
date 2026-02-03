@@ -16,6 +16,12 @@ const modalOverlayStyle = "fixed inset-0 z-[100] flex items-center justify-cente
 const modalContentStyle = "bg-[#121317] border border-[#27272A] rounded-lg shadow-xl w-full max-w-2xl m-4 p-8 relative max-h-[90vh] overflow-y-auto";
 
 const emptyProject: Project = { id: Date.now(), title: '', category: ProjectCategory.Design, description: '', imageUrl: '', tags: [], liveUrl: '', sourceUrl: '', detailContent: [] };
+const createEmptyWriting = (): Writing => ({
+    id: `writing-${Date.now()}`,
+    title: '',
+    tagline: '',
+    content: [],
+});
 
 export const Admin: React.FC = () => {
     const { logout, changePassword } = useAuth();
@@ -305,44 +311,59 @@ export const Admin: React.FC = () => {
                                             </div>
                                         </div>
                                     )}
-                                    {activeTab === 'writings' && writingsState.length > 0 && (
-                                        <div className="space-y-6">
-                                            <h2 className="font-accent text-3xl font-bold">Edit Article</h2>
-                                            <div>
-                                                <label htmlFor="writing-title" className="block text-sm font-medium text-[#A1A1AA]">Title</label>
-                                                <input type="text" id="writing-title" value={writingsState[0].title} onChange={e => setWritingsState([{...writingsState[0], title: e.target.value}])} className={inputStyle} />
-                                            </div>
-                                            <div>
-                                                <label htmlFor="writing-tagline" className="block text-sm font-medium text-[#A1A1AA]">Tagline</label>
-                                                <input type="text" id="writing-tagline" value={writingsState[0].tagline} onChange={e => setWritingsState([{...writingsState[0], tagline: e.target.value}])} className={inputStyle} />
-                                            </div>
-                                            <h3 className="font-accent text-2xl border-b border-[#27272A] pb-2">Content Blocks</h3>
-                                            <div className="space-y-4">
-                                                {writingsState[0].content.map((block, index) => (
-                                                    <div key={index} className="bg-[#0B0B0C] p-4 rounded-md space-y-2">
-                                                        <div className="flex justify-between items-center">
-                                                            <select value={block.type} onChange={e => handleWritingContentChange(index, {...block, type: e.target.value as 'heading' | 'paragraph'})} className="bg-[#27272A] rounded p-1 text-sm">
-                                                                <option value="paragraph">Paragraph</option>
-                                                                <option value="heading">Heading</option>
-                                                            </select>
-                                                            <div className="flex gap-2">
-                                                                <button onClick={() => moveWritingBlock(index, 'up')} disabled={index === 0} className="disabled:opacity-25">↑</button>
-                                                                <button onClick={() => moveWritingBlock(index, 'down')} disabled={index === writingsState[0].content.length - 1} className="disabled:opacity-25">↓</button>
-                                                                <button onClick={() => deleteWritingBlock(index)} className="text-red-500"><Trash2 size={16}/></button>
+                                    {activeTab === 'writings' && (
+                                        writingsState.length > 0 ? (
+                                            <div className="space-y-6">
+                                                <h2 className="font-accent text-3xl font-bold">Edit Article</h2>
+                                                <div>
+                                                    <label htmlFor="writing-title" className="block text-sm font-medium text-[#A1A1AA]">Title</label>
+                                                    <input type="text" id="writing-title" value={writingsState[0].title} onChange={e => setWritingsState([{...writingsState[0], title: e.target.value}])} className={inputStyle} />
+                                                </div>
+                                                <div>
+                                                    <label htmlFor="writing-tagline" className="block text-sm font-medium text-[#A1A1AA]">Tagline</label>
+                                                    <input type="text" id="writing-tagline" value={writingsState[0].tagline} onChange={e => setWritingsState([{...writingsState[0], tagline: e.target.value}])} className={inputStyle} />
+                                                </div>
+                                                <h3 className="font-accent text-2xl border-b border-[#27272A] pb-2">Content Blocks</h3>
+                                                <div className="space-y-4">
+                                                    {writingsState[0].content.map((block, index) => (
+                                                        <div key={index} className="bg-[#0B0B0C] p-4 rounded-md space-y-2">
+                                                            <div className="flex justify-between items-center">
+                                                                <select value={block.type} onChange={e => handleWritingContentChange(index, {...block, type: e.target.value as 'heading' | 'paragraph'})} className="bg-[#27272A] rounded p-1 text-sm">
+                                                                    <option value="paragraph">Paragraph</option>
+                                                                    <option value="heading">Heading</option>
+                                                                </select>
+                                                                <div className="flex gap-2">
+                                                                    <button onClick={() => moveWritingBlock(index, 'up')} disabled={index === 0} className="disabled:opacity-25">↑</button>
+                                                                    <button onClick={() => moveWritingBlock(index, 'down')} disabled={index === writingsState[0].content.length - 1} className="disabled:opacity-25">↓</button>
+                                                                    <button onClick={() => deleteWritingBlock(index)} className="text-red-500"><Trash2 size={16}/></button>
+                                                                </div>
                                                             </div>
+                                                            <textarea rows={block.type === 'heading' ? 2 : 5} value={block.text} onChange={e => handleWritingContentChange(index, {...block, text: e.target.value})} className={`${inputStyle} text-sm`}></textarea>
                                                         </div>
-                                                        <textarea rows={block.type === 'heading' ? 2 : 5} value={block.text} onChange={e => handleWritingContentChange(index, {...block, text: e.target.value})} className={`${inputStyle} text-sm`}></textarea>
-                                                    </div>
-                                                ))}
+                                                    ))}
+                                                </div>
+                                                <div className="flex gap-4">
+                                                    <button onClick={() => addWritingBlock('paragraph')} className="text-sm bg-blue-600 px-3 py-1 rounded hover:bg-blue-700">+ Paragraph</button>
+                                                    <button onClick={() => addWritingBlock('heading')} className="text-sm bg-purple-600 px-3 py-1 rounded hover:bg-purple-700">+ Heading</button>
+                                                </div>
+                                                <div className="flex justify-end mt-4">
+                                                    <button onClick={() => handleSave('writings', writingsState)} className={buttonStyle}><Save size={18} /> Save Writings</button>
+                                                </div>
                                             </div>
-                                            <div className="flex gap-4">
-                                                <button onClick={() => addWritingBlock('paragraph')} className="text-sm bg-blue-600 px-3 py-1 rounded hover:bg-blue-700">+ Paragraph</button>
-                                                <button onClick={() => addWritingBlock('heading')} className="text-sm bg-purple-600 px-3 py-1 rounded hover:bg-purple-700">+ Heading</button>
+                                        ) : (
+                                            <div className="space-y-4">
+                                                <h2 className="font-accent text-3xl font-bold">Writings</h2>
+                                                <p className="text-[#A1A1AA]">
+                                                    There are no articles yet. Create one to start publishing long-form content.
+                                                </p>
+                                                <button
+                                                    onClick={() => setWritingsState([createEmptyWriting()])}
+                                                    className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white font-bold rounded-md hover:bg-blue-700"
+                                                >
+                                                    <PlusCircle size={18} /> Create Article
+                                                </button>
                                             </div>
-                                            <div className="flex justify-end mt-4">
-                                                <button onClick={() => handleSave('writings', writingsState)} className={buttonStyle}><Save size={18} /> Save Writings</button>
-                                            </div>
-                                        </div>
+                                        )
                                     )}
 
                                     {activeTab === 'contact' && (
