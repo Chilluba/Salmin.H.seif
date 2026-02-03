@@ -14,7 +14,7 @@ This is a modern, single-page application (SPA) built with React and TypeScript.
 -   **Portfolio Page**: A filterable gallery showcasing projects across different categories.
 -   **Writings Page**: An immersive, article-style reading experience for long-form essays.
 -   **Contact Page**: A functional contact form and editable contact information.
--   **Persistent Changes (Locally)**: All content changes made in the Admin Panel are saved to the browser's `localStorage`, making them persist across sessions on the same device.
+-   **Cloud JSON Sync**: Content changes made in the Admin Panel are saved to a shared JSON configuration file, making them persistent across all devices.
 -   **Dynamic PDF Generation**: The "Download CV" button on the About page generates a professional PDF on-the-fly using the latest information from the site.
 -   **Responsive Design**: A mobile-first design that ensures a flawless experience on desktops, tablets, and smartphones.
 -   **Smooth Animations**: Engaging and subtle animations powered by Framer Motion to enhance user interaction.
@@ -77,6 +77,26 @@ All site content is managed through the built-in Admin Panel. Manual code change
     -   Enter and confirm your new password to secure your admin access.
 
 The initial, default content for the site is located in `data/defaultContent.ts`. The site will use this content as a fallback if no custom content has been saved yet.
+
+## ☁️ Cloud JSON Sync Setup (Option C)
+
+To persist edits across devices, the app writes your site content to a shared JSON file using Vercel Blob storage.
+
+1. **Create a Vercel Blob store**
+   - Follow the Vercel Blob setup guide and create a read/write token.
+
+2. **Add environment variables to Vercel**
+   - `BLOB_READ_WRITE_TOKEN`: Vercel Blob read/write token.
+   - `ADMIN_TOKEN`: A secret string used to protect write access to the content API.
+
+3. **Add your sync token in the Admin Panel**
+   - Open **Settings → Cloud Sync** and paste the same `ADMIN_TOKEN` value.
+
+Your content will now sync globally across all browsers and devices.
+
+### Conflict & Backup Protection
+- Each save increments a `meta.version` value. If two devices edit at once, the API returns the latest content to prevent overwrites.
+- The previous content is saved as `siteContent.backup.json` in the blob store, so you can restore if needed.
 
 ## 📄 License
 

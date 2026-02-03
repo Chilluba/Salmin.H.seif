@@ -2,6 +2,10 @@ import { SiteContent, ProjectCategory, Writing } from '../types';
 import { THE_NATURE_OF_THE_SELF } from './defaultWritings';
 
 export const DEFAULT_SITE_CONTENT: SiteContent = {
+  meta: {
+    version: 1,
+    updatedAt: new Date().toISOString(),
+  },
   home: {
     tagline: 'Multidisciplinary Creative & Technologist',
     description: 'Blending business, technology, and art. Specializing in 3D design, videography, graphic design, and philosophical storytelling.',
