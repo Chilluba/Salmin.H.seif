@@ -54,6 +54,10 @@ export interface Writing {
 }
 
 // --- New Content Management Types ---
+export interface ContentMeta {
+  version: number;
+  updatedAt: string;
+}
 
 export interface HomePageContent {
   tagline: string;
@@ -74,6 +78,7 @@ export interface ContactPageContent {
 }
 
 export interface SiteContent {
+  meta?: ContentMeta;
   home: HomePageContent;
   about: AboutPageContent;
   portfolio: Project[];

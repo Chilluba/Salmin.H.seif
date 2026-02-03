@@ -26,7 +26,7 @@ const createEmptyWriting = (): Writing => ({
 export const Admin: React.FC = () => {
     const { logout, changePassword } = useAuth();
     const navigate = useNavigate();
-    const { content, updateContent } = useContent();
+    const { content, updateContent, lastSyncError } = useContent();
 
     const [activeTab, setActiveTab] = useState<AdminTab>('home');
     const [statusMessage, setStatusMessage] = useState('');
@@ -44,6 +44,7 @@ export const Admin: React.FC = () => {
     
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    const [syncToken, setSyncToken] = useState(() => localStorage.getItem('adminSyncToken') || '');
 
     const showStatusMessage = (message: string) => {
         setStatusMessage(message);
@@ -51,8 +52,12 @@ export const Admin: React.FC = () => {
     };
 
     const handleSave = async (section: keyof SiteContent, data: any) => {
-        await updateContent({ ...content, [section]: data });
-        showStatusMessage(`${section.charAt(0).toUpperCase() + section.slice(1)} content updated successfully!`);
+        try {
+            await updateContent({ ...content, [section]: data });
+            showStatusMessage(`${section.charAt(0).toUpperCase() + section.slice(1)} content updated successfully!`);
+        } catch (error) {
+            showStatusMessage('Saved locally, but syncing failed. Check your sync token and try again.');
+        }
     };
     
     const handlePasswordChange = async (e: React.FormEvent) => {
@@ -65,6 +70,12 @@ export const Admin: React.FC = () => {
         } else {
             showStatusMessage('Passwords do not match.');
         }
+    };
+
+    const handleSyncTokenSave = (e: React.FormEvent) => {
+        e.preventDefault();
+        localStorage.setItem('adminSyncToken', syncToken);
+        showStatusMessage('Sync token saved. Your changes will sync across devices.');
     };
 
     const handleExportContent = () => {
@@ -405,6 +416,32 @@ export const Admin: React.FC = () => {
                                                         <button type="submit" className={buttonStyle}><Save size={18} /> Change Password</button>
                                                     </div>
                                                 </form>
+                                            </div>
+                                            <div className="border-t border-[#27272A] pt-8">
+                                                <h3 className="font-accent text-2xl font-bold mb-4">Cloud Sync</h3>
+                                                <p className="text-[#A1A1AA] mb-4 text-sm">
+                                                    Enter the sync token from your deployment environment to save edits to the shared JSON
+                                                    configuration. This keeps your portfolio in sync across all devices.
+                                                </p>
+                                                <form onSubmit={handleSyncTokenSave} className="space-y-4 max-w-sm">
+                                                    <div>
+                                                        <label htmlFor="sync-token" className="block text-sm font-medium text-[#A1A1AA]">Sync Token</label>
+                                                        <input
+                                                            id="sync-token"
+                                                            type="password"
+                                                            value={syncToken}
+                                                            onChange={e => setSyncToken(e.target.value)}
+                                                            className={inputStyle}
+                                                            placeholder="Paste ADMIN_TOKEN here"
+                                                        />
+                                                    </div>
+                                                    <div className="flex justify-end">
+                                                        <button type="submit" className={buttonStyle}><Save size={18} /> Save Sync Token</button>
+                                                    </div>
+                                                </form>
+                                                {lastSyncError && (
+                                                    <p className="mt-4 text-sm text-red-400">{lastSyncError}</p>
+                                                )}
                                             </div>
                                             <div>
                                                 <h2 className="font-accent text-3xl font-bold mb-4">Global Content Persistence</h2>

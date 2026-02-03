@@ -8,6 +8,7 @@ interface ContentContextType {
   content: SiteContent;
   updateContent: (newContent: SiteContent) => Promise<void>;
   isLoaded: boolean;
+  lastSyncError: string | null;
 }
 
 const ContentContext = createContext<ContentContextType | undefined>(undefined);
@@ -35,6 +36,9 @@ const getFrame = (): Promise<any | null> => {
 export const ContentProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [content, setContent] = useState<SiteContent>(DEFAULT_SITE_CONTENT);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [lastSyncError, setLastSyncError] = useState<string | null>(null);
+
+  const getAdminToken = () => localStorage.getItem('adminSyncToken') || '';
 
   useEffect(() => {
     const loadContent = async () => {
@@ -42,11 +46,18 @@ export const ContentProvider: React.FC<{ children: ReactNode }> = ({ children })
       let storedContentSource: string | null = null;
       
       try {
-        if (frame) {
-          storedContentSource = await frame.storage.get('siteContent');
+        const response = await fetch('/api/content', { cache: 'no-store' });
+        if (response.ok) {
+          const payload = await response.json();
+          storedContentSource = JSON.stringify(payload);
+          localStorage.setItem('siteContent', storedContentSource);
         } else {
-          console.warn("Global storage API not found. Falling back to localStorage. Changes will not be synced across devices.");
-          storedContentSource = localStorage.getItem('siteContent');
+          if (frame) {
+            storedContentSource = await frame.storage.get('siteContent');
+          } else {
+            console.warn("Global storage API not found. Falling back to localStorage. Changes will not be synced across devices.");
+            storedContentSource = localStorage.getItem('siteContent');
+          }
         }
   
         if (storedContentSource) {
@@ -73,23 +84,50 @@ export const ContentProvider: React.FC<{ children: ReactNode }> = ({ children })
   }, []);
 
   const updateContent = async (newContent: SiteContent) => {
+    setLastSyncError(null);
     setContent(newContent);
     const frame = await getFrame();
+    const expectedVersion = newContent.meta?.version ?? 1;
     const contentString = JSON.stringify(newContent);
 
     try {
-        if (frame) {
-            await frame.storage.set('siteContent', contentString);
+        const response = await fetch('/api/content', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-admin-token': getAdminToken(),
+          },
+          body: JSON.stringify({ content: newContent, expectedVersion }),
+        });
+
+        if (response.ok) {
+          const updated = await response.json();
+          setContent(updated);
+          localStorage.setItem('siteContent', JSON.stringify(updated));
+        } else if (response.status === 409) {
+          const payload = await response.json();
+          setContent(payload);
+          localStorage.setItem('siteContent', JSON.stringify(payload));
+          setLastSyncError('Someone else updated the site. Your changes were not saved. Please review the latest content and try again.');
+          throw new Error('Content version conflict.');
         } else {
-            localStorage.setItem('siteContent', contentString);
+          const errorPayload = await response.json().catch(() => ({}));
+          throw new Error(errorPayload.message || 'Failed to sync content.');
         }
     } catch (error) {
       console.error("Failed to save content:", error);
+      setLastSyncError('Unable to sync content to the server. Changes are saved locally only.');
+      if (frame) {
+        await frame.storage.set('siteContent', contentString);
+      } else {
+        localStorage.setItem('siteContent', contentString);
+      }
+      throw error;
     }
   };
 
   return (
-    <ContentContext.Provider value={{ content, updateContent, isLoaded }}>
+    <ContentContext.Provider value={{ content, updateContent, isLoaded, lastSyncError }}>
       {children}
     </ContentContext.Provider>
   );
